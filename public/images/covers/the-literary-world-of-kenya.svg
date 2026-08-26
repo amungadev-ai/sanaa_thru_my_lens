@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.5" fill="white" fill-opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <rect width="1200" height="800" fill="url(#dots)"/>
+  <!-- Brand mark -->
+  <g transform="translate(80, 80)">
+    <rect width="48" height="48" rx="8" fill="white" fill-opacity="0.15"/>
+    <text x="24" y="32" font-family="Georgia, serif" font-size="22" font-weight="700" fill="white" text-anchor="middle">ST</text>
+  </g>
+  <text x="148" y="112" font-family="Georgia, serif" font-size="20" fill="white" fill-opacity="0.85">Sanaa Thrumylens</text>
+  <!-- Category pill -->
+  <g transform="translate(80, 310)">
+    <rect width="142" height="32" rx="16" fill="white" fill-opacity="0.18"/>
+    <text x="16" y="21" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="white" letter-spacing="1.5">LITERATURE</text>
+  </g>
+  <!-- Title -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" fill="white">
+    <tspan x="80" y="380">The literary world of Kenya</tspan>
+  </text>
+  <!-- Author / divider -->
+  <line x1="80" y1="670" x2="180" y2="670" stroke="white" stroke-width="2" stroke-opacity="0.6"/>
+  <text x="80" y="710" font-family="Inter, system-ui, sans-serif" font-size="16" fill="white" fill-opacity="0.9">By Sanaa Thrumylens</text>
+  <text x="80" y="740" font-family="Inter, system-ui, sans-serif" font-size="13" fill="white" fill-opacity="0.6">sanaathrumylens.co.ke</text>
+</svg>

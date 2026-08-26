@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String // HTML content
+  coverImage  String?
+  category    String?
+  tags        String // comma-separated tags
+  author      String   @default("Sanaa Thrumylens")
+  status      String   @default("PUBLISHED") // DRAFT | PUBLISHED
+  featured    Boolean  @default(false)
+  views       Int      @default(0)
+  readingTime Int      @default(5)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  comments Comment[]
+
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+  slug        String @unique
+  description String?
+  color       String? // tailwind color class for accent
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // hashed
+  name      String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  name      String
+  email     String
+  content   String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([approved])
+}
+
+model SiteSettings {
+  id          String  @id @default("default")
+  siteName    String  @default("Sanaa Thrumylens")
+  tagline     String  @default("Art Through My Lens")
+  description String?
+  logoText    String  @default("ST")
+  socialTwitter  String?
+  socialInstagram String?
+  socialFacebook String?
+  socialEmail    String?
+}
