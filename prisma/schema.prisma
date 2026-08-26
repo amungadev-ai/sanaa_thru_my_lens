@@ -6,21 +6,21 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model Post {
   id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  excerpt     String
-  content     String // HTML content
-  coverImage  String?
-  category    String?
-  tags        String // comma-separated tags
-  author      String   @default("Sanaa Thrumylens")
-  status      String   @default("PUBLISHED") // DRAFT | PUBLISHED
+  title       String   @db.VarChar(255)
+  slug        String   @unique @db.VarChar(191)
+  excerpt     String   @db.Text
+  content     String   @db.LongText // HTML content
+  coverImage  String?  @db.VarChar(500)
+  category    String?  @db.VarChar(100)
+  tags        String   @db.VarChar(500) // comma-separated tags
+  author      String   @default("Sanaa Thrumylens") @db.VarChar(150)
+  status      String   @default("PUBLISHED") @db.VarChar(20) // DRAFT | PUBLISHED
   featured    Boolean  @default(false)
   views       Int      @default(0)
   readingTime Int      @default(5)
@@ -35,19 +35,19 @@ model Post {
 }
 
 model Category {
-  id          String @id @default(cuid())
-  name        String @unique
-  slug        String @unique
-  description String?
-  color       String? // tailwind color class for accent
+  id          String  @id @default(cuid())
+  name        String  @unique @db.VarChar(100)
+  slug        String  @unique @db.VarChar(120)
+  description String? @db.Text
+  color       String? @db.VarChar(100) // tailwind color class for accent
 }
 
 model AdminUser {
   id        String   @id @default(cuid())
-  email     String   @unique
-  password  String // hashed
-  name      String
-  role      String   @default("ADMIN")
+  email     String   @unique @db.VarChar(191)
+  password  String   @db.VarChar(255)
+  name      String   @db.VarChar(150)
+  role      String   @default("ADMIN") @db.VarChar(30)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -55,9 +55,9 @@ model AdminUser {
 model Comment {
   id        String   @id @default(cuid())
   postId    String
-  name      String
-  email     String
-  content   String
+  name      String   @db.VarChar(150)
+  email     String   @db.VarChar(191)
+  content   String   @db.Text
   approved  Boolean  @default(false)
   createdAt DateTime @default(now())
 
@@ -68,13 +68,26 @@ model Comment {
 }
 
 model SiteSettings {
-  id          String  @id @default("default")
-  siteName    String  @default("Sanaa Thrumylens")
-  tagline     String  @default("Art Through My Lens")
-  description String?
-  logoText    String  @default("ST")
-  socialTwitter  String?
-  socialInstagram String?
-  socialFacebook String?
-  socialEmail    String?
+  id          String  @id @default("default") @db.VarChar(30)
+  siteName    String  @default("Sanaa Thrumylens") @db.VarChar(150)
+  tagline     String  @default("Art Through My Lens") @db.VarChar(200)
+  description String? @db.Text
+  logoText    String  @default("ST") @db.VarChar(10)
+  socialTwitter   String? @db.VarChar(150)
+  socialInstagram String? @db.VarChar(150)
+  socialFacebook  String? @db.VarChar(255)
+  socialEmail     String? @db.VarChar(191)
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique @db.VarChar(191)
+  name      String?  @db.VarChar(150)
+  status    String   @default("ACTIVE") @db.VarChar(20) // ACTIVE | UNSUBSCRIBED
+  source    String   @default("WEBSITE") @db.VarChar(50) // WEBSITE | IMPORT | MANUAL
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }

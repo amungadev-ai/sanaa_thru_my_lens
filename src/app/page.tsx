@@ -1,18 +1,20 @@
 import { SiteHeader } from "@/components/blog/SiteHeader";
 import { SiteFooter } from "@/components/blog/SiteFooter";
 import { ArticleCard } from "@/components/blog/ArticleCard";
+import { NewsletterForm } from "@/components/blog/NewsletterForm";
 import { getPublishedPosts, getFeaturedPost, getCategories } from "@/lib/posts";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Mail } from "lucide-react";
+import { ArrowRight, Sparkles, Users } from "lucide-react";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [featured, recent, categories] = await Promise.all([
+  const [featured, recent, categories, subscriberCount] = await Promise.all([
     getFeaturedPost(),
     getPublishedPosts({ limit: 7 }),
     getCategories(),
+    db.subscriber.count({ where: { status: "ACTIVE" } }),
   ]);
 
   // Split recent: first 3 for top grid, next 4 for "More Stories" sidebar
@@ -163,30 +165,20 @@ export default async function HomePage() {
               </div>
 
               {/* Newsletter */}
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-6">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-primary" />
-                  <h3 className="font-serif text-lg font-bold">The Weekly Dispatch</h3>
+              <NewsletterForm />
+
+              {/* Subscriber count */}
+              {subscriberCount > 0 && (
+                <div className="rounded-lg border border-border bg-card p-5">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="h-4 w-4 text-primary" />
+                    <span>
+                      Join <strong className="font-bold text-foreground">{subscriberCount.toLocaleString()}</strong>{" "}
+                      {subscriberCount === 1 ? "reader" : "readers"} already getting The Weekly Dispatch.
+                    </span>
+                  </div>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  One email every Friday — the best new stories, plus a curated pick from
-                  Nairobi&apos;s creative scene. No spam, ever.
-                </p>
-                <form className="mt-4 flex flex-col gap-2">
-                  <input
-                    type="email"
-                    required
-                    placeholder="you@example.com"
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  />
-                  <button
-                    type="submit"
-                    className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                  >
-                    Subscribe
-                  </button>
-                </form>
-              </div>
+              )}
             </aside>
           </div>
         </section>

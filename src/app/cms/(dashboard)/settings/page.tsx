@@ -35,24 +35,30 @@ export default async function CmsSettingsPage() {
         adminEmail={admin?.email ?? "admin@sanaathrumylens.co.ke"}
       />
 
-      {/* Deployment note */}
-      <Card className="border-primary/30 bg-primary/5 p-6">
-        <h3 className="font-serif text-base font-bold">Production deployment</h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          This sandbox runs on SQLite for development. To deploy to your production server
-          (d7.my-control-panel.com) with the MySQL database you provided, switch the
-          <code className="mx-1 rounded bg-secondary px-1.5 py-0.5 text-xs">prisma/schema.prisma</code>
-          datasource provider from <code className="mx-1 rounded bg-secondary px-1.5 py-0.5 text-xs">sqlite</code>
-          to <code className="mx-1 rounded bg-secondary px-1.5 py-0.5 text-xs">mysql</code> and set
-          <code className="mx-1 rounded bg-secondary px-1.5 py-0.5 text-xs">DATABASE_URL</code>
-          to your MySQL connection string.
+      {/* Database status */}
+      <Card className="border-emerald-200 bg-emerald-50 p-6">
+        <h3 className="font-serif text-base font-bold text-emerald-900">Database Connected</h3>
+        <p className="mt-2 text-sm leading-relaxed text-emerald-700">
+          This site is connected to your production MySQL database on{" "}
+          <code className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs">d7.my-control-panel.com</code>.
+          All posts, categories, subscribers, and settings are stored in the{" "}
+          <code className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs">jobready_sanaa_test</code>{" "}
+          database.
         </p>
-        <pre className="mt-3 overflow-x-auto rounded-md bg-sidebar p-3 text-xs text-sidebar-foreground">
-{`# .env (production)
-DATABASE_URL="mysql://jobready_sanaa_test_admin:Admin254@d7.my-control-panel.com:3306/jobready_sanaa_test"
-NEXTAUTH_SECRET="generate-a-strong-secret"
-NEXTAUTH_URL="https://www.saaathrumylens.co.ke"`}
-        </pre>
+        <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-emerald-700 sm:grid-cols-2">
+          <div>
+            <span className="font-semibold">Host:</span> d7.my-control-panel.com:3306
+          </div>
+          <div>
+            <span className="font-semibold">Database:</span> jobready_sanaa_test
+          </div>
+          <div>
+            <span className="font-semibold">Engine:</span> MariaDB 10.6
+          </div>
+          <div>
+            <span className="font-semibold">Tables:</span> Post, Category, AdminUser, Comment, SiteSettings, Subscriber
+          </div>
+        </div>
       </Card>
     </div>
   );

@@ -8,6 +8,7 @@ import {
   FileText,
   FolderTree,
   Settings,
+  Users,
   LogOut,
   ExternalLink,
   Menu,
@@ -20,6 +21,7 @@ import { Button } from "@/components/ui/button";
 const NAV = [
   { href: "/cms", label: "Dashboard", icon: LayoutDashboard },
   { href: "/cms/posts", label: "Posts", icon: FileText },
+  { href: "/cms/subscribers", label: "Subscribers", icon: Users },
   { href: "/cms/categories", label: "Categories", icon: FolderTree },
   { href: "/cms/settings", label: "Settings", icon: Settings },
 ];

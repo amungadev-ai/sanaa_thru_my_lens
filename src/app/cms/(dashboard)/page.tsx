@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, Eye, TrendingUp, Star, Clock, ArrowUpRight } from "lucide-react";
+import { FileText, Eye, TrendingUp, Star, Users, ArrowUpRight } from "lucide-react";
 import { db } from "@/lib/db";
 import { getPostStats, getRecentPosts, formatViews } from "@/lib/posts";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ function formatDate(d: Date): string {
 }
 
 export default async function CmsDashboardPage() {
-  const [stats, recent, categoryStats] = await Promise.all([
+  const [stats, recent, categoryStats, subscriberCount] = await Promise.all([
     getPostStats(),
     getRecentPosts(6),
     db.post.groupBy({
@@ -19,6 +19,7 @@ export default async function CmsDashboardPage() {
       _sum: { views: true },
       orderBy: { _count: { category: "desc" } },
     }),
+    db.subscriber.count({ where: { status: "ACTIVE" } }),
   ]);
 
   const cards = [
@@ -35,16 +36,16 @@ export default async function CmsDashboardPage() {
       icon: Eye,
     },
     {
+      label: "Subscribers",
+      value: subscriberCount,
+      sub: "Active on The Weekly Dispatch",
+      icon: Users,
+    },
+    {
       label: "Featured",
       value: stats.featuredCount,
       sub: "Currently spotlighted",
       icon: Star,
-    },
-    {
-      label: "Avg. Views / Post",
-      value: stats.published > 0 ? formatViews(Math.round(stats.totalViews / stats.published)) : "0",
-      sub: "Engagement indicator",
-      icon: TrendingUp,
     },
   ];
 
@@ -193,6 +194,16 @@ export default async function CmsDashboardPage() {
             <div>
               <p className="font-medium">Edit sections</p>
               <p className="text-xs text-muted-foreground">Categories &amp; tags</p>
+            </div>
+            <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+          <Link
+            href="/cms/subscribers"
+            className="group flex items-center justify-between rounded-md border border-border p-4 transition-colors hover:border-primary/40 hover:bg-secondary/40"
+          >
+            <div>
+              <p className="font-medium">View subscribers</p>
+              <p className="text-xs text-muted-foreground">{subscriberCount} active readers</p>
             </div>
             <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
