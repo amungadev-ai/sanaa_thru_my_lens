@@ -30,6 +30,7 @@ import {
   Italic,
   Image as ImageIcon,
   Wand2,
+  Upload,
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
@@ -133,7 +134,11 @@ export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
   const [saving, setSaving] = useState(false);
   const [autoSlug, setAutoSlug] = useState(mode === "create");
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingContent, setUploadingContent] = useState(false);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
+  const contentFileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-update slug from title (only in create mode or when autoSlug is on)
   useEffect(() => {
@@ -199,6 +204,60 @@ export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
         }
       })
       .catch(() => toast.error("Network error"));
+  };
+
+  /**
+   * Upload an image file to the CDN (via the blog's /api/upload proxy)
+   * and set it as the cover image.
+   */
+  const handleCoverUpload = async (file: File | null) => {
+    if (!file) return;
+    setUploadingCover(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const result = await res.json();
+      if (res.ok && result.ok && result.url) {
+        update("coverImage", result.url);
+        toast.success("Cover uploaded to CDN");
+      } else {
+        toast.error(result.error ?? "Upload failed");
+      }
+    } catch {
+      toast.error("Network error during upload");
+    } finally {
+      setUploadingCover(false);
+      // Reset the input so the same file can be re-selected if needed
+      if (coverFileInputRef.current) coverFileInputRef.current.value = "";
+    }
+  };
+
+  /**
+   * Upload an image to the CDN and insert an <img> tag at the cursor
+   * position in the content editor.
+   */
+  const handleContentImageUpload = async (file: File | null) => {
+    if (!file) return;
+    setUploadingContent(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const result = await res.json();
+      if (res.ok && result.ok && result.url) {
+        const alt = file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
+        insertTag(`<img src="${result.url}" alt="${alt}" />`);
+        toast.success("Image inserted");
+      } else {
+        toast.error(result.error ?? "Upload failed");
+      }
+    } catch {
+      toast.error("Network error during upload");
+    } finally {
+      setUploadingContent(false);
+      if (contentFileInputRef.current) contentFileInputRef.current.value = "";
+    }
   };
 
   const handleSave = async (publish: boolean) => {
@@ -342,9 +401,23 @@ export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
                 <EditorButton title="Link" onClick={() => insertTag('<a href="https://">', "</a>")}>
                   <Link2 className="h-4 w-4" />
                 </EditorButton>
-                <EditorButton title="Image" onClick={() => insertTag('<img src="" alt="', '" />')}>
+                <EditorButton
+                  title="Upload image to CDN"
+                  onClick={() => contentFileInputRef.current?.click()}
+                  disabled={uploadingContent}
+                >
+                  {uploadingContent ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                </EditorButton>
+                <EditorButton title="Image (manual URL)" onClick={() => insertTag('<img src="" alt="', '" />')}>
                   <ImageIcon className="h-4 w-4" />
                 </EditorButton>
+                <input
+                  ref={contentFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleContentImageUpload(e.target.files?.[0] ?? null)}
+                />
               </div>
               <div className="flex items-center gap-1">
                 <button
@@ -490,12 +563,28 @@ export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
           <Card className="p-5">
             <div className="flex items-center justify-between">
               <h3 className="font-serif text-sm font-bold uppercase tracking-wider">Cover</h3>
-              <button
-                onClick={handleGenerateCover}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
-              >
-                <Wand2 className="h-3 w-3" /> Auto
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleGenerateCover}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                >
+                  <Wand2 className="h-3 w-3" /> Auto
+                </button>
+                <button
+                  onClick={() => coverFileInputRef.current?.click()}
+                  disabled={uploadingCover}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline disabled:opacity-50"
+                >
+                  {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />} Upload
+                </button>
+                <input
+                  ref={coverFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleCoverUpload(e.target.files?.[0] ?? null)}
+                />
+              </div>
             </div>
             {data.coverImage && (
               <div className="mt-3 aspect-video overflow-hidden rounded-md border border-border">
@@ -505,7 +594,7 @@ export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
             <Input
               value={data.coverImage}
               onChange={(e) => update("coverImage", e.target.value)}
-              placeholder="/images/covers/… or https://…"
+              placeholder="/images/covers/… or https://cdn.sanaathrumylens.co.ke/…"
               className="mt-3 font-mono text-xs"
             />
           </Card>
@@ -519,17 +608,20 @@ function EditorButton({
   children,
   onClick,
   title,
+  disabled,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   title: string;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       title={title}
-      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+      disabled={disabled}
+      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {children}
     </button>

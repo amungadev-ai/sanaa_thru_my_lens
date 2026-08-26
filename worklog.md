@@ -81,3 +81,36 @@ Stage Summary:
 - All API endpoints tested and verified working
 - Lint passes clean
 - Database: mysql://jobready_sanaa_test_admin:Admin254@d7.my-control-panel.com:3306/jobready_sanaa_test
+
+---
+Task ID: sanaathrumylens-cdn-setup
+Agent: main (Super Z)
+Task: Set up a secure CDN on cdn.sanaathrumylens.co.ke (DirectAdmin hosting) for storing blog images, and integrate it with the CMS post editor.
+
+Work Log:
+- Created cdn-files/ directory with 5 files for upload to DirectAdmin:
+  - upload.php: authenticated upload endpoint (Bearer token, MIME validation, unique filenames, CORS)
+  - config.example.php: template for API key + allowed origins
+  - .htaccess: HTTPS redirect, CORS, 1-year image caching, SVG mime type, config.php protection, directory listing disabled
+  - index.html: placeholder page for the CDN root
+  - README.md: complete 8-step DirectAdmin setup walkthrough (subdomain verify, SSL, file upload, config, PHP check, curl test, .env, CMS usage)
+- Updated blog's /api/upload route to support two modes:
+  1. SVG auto-generation (JSON body) → saves locally to /public/images/covers/
+  2. Image upload (multipart/form-data) → proxies to cdn.sanaathrumylens.co.ke/upload.php with Bearer API key
+- Added CDN_URL and CDN_API_KEY to .env (placeholder values, user replaces after CDN setup)
+- Updated PostEditor component with two new upload capabilities:
+  - Cover image: "Upload" button next to existing "Auto" button → opens file picker → uploads to CDN → sets coverImage URL
+  - Content editor: new "Upload image to CDN" button in toolbar (Upload icon) → opens file picker → uploads to CDN → inserts <img> tag at cursor with CDN URL + alt text from filename
+  - Both show loading spinners during upload and toast notifications on success/failure
+  - Kept the original "Image (manual URL)" button for inserting <img> with a typed URL
+- Updated next.config.ts with images.remotePatterns to allow loading from cdn.sanaathrumylens.co.ke
+- Added `disabled` prop support to EditorButton component
+- Tested: SVG upload works locally, unauthenticated requests return 401, lint passes clean
+
+Stage Summary:
+- CDN files ready in /home/z/my-project/cdn-files/ for upload to DirectAdmin
+- Blog CMS fully integrated: cover image upload + in-content image upload both proxy to CDN
+- Security: API key auth, MIME validation, CORS restricted to blog domains, HTTPS enforced
+- Caching: images served with 1-year immutable cache headers
+- User needs to: upload cdn-files/ to DirectAdmin, create config.php with API key, set same key in blog .env
+- Full setup instructions in cdn-files/README.md

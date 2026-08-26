@@ -1,0 +1,52 @@
+# Sanaa Thrumylens CDN — .htaccess
+# Location: cdn.sanaathrumylens.co.ke/.htaccess
+
+# --- Force HTTPS -----------------------------------------------------------
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# --- Protect sensitive files ----------------------------------------------
+<FilesMatch "^(config\.php|config\.example\.php|\.htaccess|\.htpasswd|readme\.md|README\.md)$">
+    Require all denied
+</FilesMatch>
+
+# --- Deny directory listing ------------------------------------------------
+Options -Indexes
+
+# --- Default CORS for images served from /images/ --------------------------
+<IfModule mod_headers.c>
+    # Allow images to be loaded by the blog
+    SetEnvIf Origin "^(https://(www\.)?saaathrumylens\.co\.ke)$" CORS_ORIGIN=$0
+    Header always set Access-Control-Allow-Origin "%{CORS_ORIGIN}e" env=CORS_ORIGIN
+    Header always set Vary "Origin"
+</IfModule>
+
+# --- CDN caching headers for /images/ --------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|avif|svg)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set X-Content-Type-Options "nosniff"
+        Header set X-Frame-Options "SAMEORIGIN"
+    </FilesMatch>
+</IfModule>
+
+# --- Serve SVG with correct content type -----------------------------------
+<IfModule mod_mime.c>
+    AddType image/svg+xml .svg
+    AddType image/svg+xml .svgz
+</IfModule>
+
+# --- Pretty error pages ----------------------------------------------------
+ErrorDocument 403 "Forbidden"
+ErrorDocument 404 "Not Found"
