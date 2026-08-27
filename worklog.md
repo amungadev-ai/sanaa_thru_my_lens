@@ -114,3 +114,30 @@ Stage Summary:
 - Caching: images served with 1-year immutable cache headers
 - User needs to: upload cdn-files/ to DirectAdmin, create config.php with API key, set same key in blog .env
 - Full setup instructions in cdn-files/README.md
+
+---
+Task ID: sanaathrumylens-cdn-test
+Agent: main (Super Z)
+Task: Test the CDN upload flow end-to-end after user completed DirectAdmin setup.
+
+Work Log:
+- User uploaded cdn-files to DirectAdmin, created config.php with API key, created images/ folder
+- Verified CDN health check: https://cdn.sanaathrumylens.co.ke/upload.php returns {"ok":true,...}
+- Verified config.php is protected (403), .htaccess works (403), images/ folder exists
+- Tested direct CDN upload via curl: 201 Created, image accessible at returned URL
+- Verified caching headers: cache-control: public, max-age=31536000, immutable
+- Updated blog .env with CDN_URL and CDN_API_KEY
+- Fixed upload route directory (was missing after dev server reset)
+- Fixed issue: .env file was being reset by dev script — created persistent start-dev.sh with all env vars
+- Diagnosed "CDN returned non-JSON response" error: LiteSpeed bot protection was returning a bot verification page for requests with non-browser User-Agents
+- Fixed by adding browser-like User-Agent header to the CDN fetch() call in /api/upload/route.ts
+- Tested full flow: blog CMS → /api/upload → CDN upload.php → image stored and accessible
+- Lint passes clean
+
+Stage Summary:
+- CDN fully operational: https://cdn.sanaathrumylens.co.ke
+- API key: Uu8fNfxbBt5N98PthuFT89KHE9enMxBg
+- Upload flow: CMS editor → blog /api/upload (auth) → CDN upload.php (Bearer token) → image stored at /images/YYYY/MM/filename-hash.ext
+- Images served with 1-year immutable cache headers
+- Security: API key auth, MIME validation, CORS restricted, HTTPS enforced, config.php protected
+- Next.js configured to load images from cdn.sanaathrumylens.co.ke via next.config.ts remotePatterns
