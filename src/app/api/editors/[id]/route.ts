@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isAuthenticated } from "@/lib/auth";
+import { bustEditorsCache } from "@/lib/cache-bust";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -19,6 +20,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
       where: { id },
       data: { status: "SUSPENDED", inviteToken: null },
     });
+    bustEditorsCache();
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Editor not found." }, { status: 404 });

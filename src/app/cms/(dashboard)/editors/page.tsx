@@ -1,23 +1,17 @@
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { getCachedAllEditors, getCachedEditorStats } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Mail, UserCheck, UserX, Clock } from "lucide-react";
 import { InviteEditorDialog } from "./InviteEditorDialog";
 import { EditorsTable } from "./EditorsTable";
 
-export const revalidate = 30; // Cache for 30 seconds
+export const revalidate = 30;
 
 export default async function CmsEditorsPage() {
   const [editors, stats] = await Promise.all([
-    db.editor.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { _count: { select: { posts: true } } },
-    }),
-    db.editor.groupBy({
-      by: ["status"],
-      _count: { _all: true },
-    }),
+    getCachedAllEditors().catch(() => []),
+    getCachedEditorStats().catch(() => []),
   ]);
 
   const statMap = new Map<string, number>();

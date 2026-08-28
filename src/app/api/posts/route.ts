@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isAuthenticated } from "@/lib/auth";
 import { notifySubscribersOfNewPost } from "@/lib/notify-subscribers";
+import { bustPostsCache } from "@/lib/cache-bust";
 
 function slugify(text: string): string {
   return text
@@ -92,6 +93,9 @@ export async function POST(req: NextRequest) {
         author: post.author,
       }).catch((e) => console.error("Subscriber notification failed:", e));
     }
+
+    // Bust cache so next request sees the new post
+    bustPostsCache();
 
     return NextResponse.json({ ok: true, post }, { status: 201 });
   } catch (e) {

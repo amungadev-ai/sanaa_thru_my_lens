@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { getCachedAllSubscribers, getCachedSubscriberStats } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
 import { Users, Mail, UserCheck, UserX } from "lucide-react";
 import { SubscribersTable } from "./SubscribersTable";
 
-export const revalidate = 30; // Cache for 30 seconds
+export const revalidate = 30;
 
 export default async function CmsSubscribersPage({
   searchParams,
@@ -16,18 +16,8 @@ export default async function CmsSubscribersPage({
   const status = sp.status?.trim() ?? "ACTIVE";
 
   const [subscribers, stats] = await Promise.all([
-    db.subscriber.findMany({
-      where: {
-        ...(status && status !== "all" ? { status } : {}),
-        ...(q ? { email: { contains: q } } : {}),
-      },
-      orderBy: { createdAt: "desc" },
-      take: 500,
-    }),
-    db.subscriber.groupBy({
-      by: ["status"],
-      _count: { _all: true },
-    }),
+    getCachedAllSubscribers(status, q).catch(() => []),
+    getCachedSubscriberStats().catch(() => []),
   ]);
 
   const statMap = new Map<string, number>();

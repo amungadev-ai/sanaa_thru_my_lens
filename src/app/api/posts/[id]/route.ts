@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isAuthenticated } from "@/lib/auth";
 import { notifySubscribersOfNewPost } from "@/lib/notify-subscribers";
+import { bustPostsCache } from "@/lib/cache-bust";
 
 function slugify(text: string): string {
   return text
@@ -112,6 +113,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   try {
     await db.post.delete({ where: { id } });
+    bustPostsCache();
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Post not found or already deleted." }, { status: 404 });

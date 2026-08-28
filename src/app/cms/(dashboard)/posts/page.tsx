@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
-import { db } from "@/lib/db";
+import { getCachedAllPosts } from "@/lib/data-cache";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PostsTable } from "./PostsTable";
-import { formatViews } from "@/lib/posts";
 
-export const revalidate = 15; // Cache for 15 seconds (admin needs fresher data)
+export const revalidate = 15;
 
 function formatDate(d: Date): string {
   return d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
@@ -21,14 +20,7 @@ export default async function CmsPostsPage({
   const q = sp.q?.trim() ?? "";
   const status = sp.status?.trim() ?? "";
 
-  const posts = await db.post.findMany({
-    where: {
-      ...(q ? { title: { contains: q } } : {}),
-      ...(status && status !== "all" ? { status } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
+  const posts = await getCachedAllPosts(q, status).catch(() => []);
 
   return (
     <div className="space-y-6">

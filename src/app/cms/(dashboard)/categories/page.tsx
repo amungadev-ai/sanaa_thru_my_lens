@@ -1,18 +1,15 @@
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { getCachedAllCategories, getCachedCategoryCounts } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CategoryManager } from "./CategoryManager";
 
-export const revalidate = 60; // Cache for 1 minute
+export const revalidate = 60;
 
 export default async function CmsCategoriesPage() {
   const [categories, counts] = await Promise.all([
-    db.category.findMany({ orderBy: { name: "asc" } }),
-    db.post.groupBy({
-      by: ["category"],
-      _count: { _all: true },
-    }),
+    getCachedAllCategories().catch(() => []),
+    getCachedCategoryCounts().catch(() => []),
   ]);
 
   const countMap = new Map<string, number>();

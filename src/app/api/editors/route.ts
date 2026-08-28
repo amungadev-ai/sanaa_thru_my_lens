@@ -4,6 +4,7 @@ import { isAuthenticated } from "@/lib/auth";
 import { generateInviteToken } from "@/lib/editor-auth";
 import { sendEmail } from "@/lib/email";
 import { editorInviteEmail } from "@/lib/editor-email-templates";
+import { bustEditorsCache } from "@/lib/cache-bust";
 
 const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 const INVITE_EXPIRY_DAYS = 7;
@@ -102,6 +103,8 @@ export async function POST(req: NextRequest) {
       html: emailContent.html,
       text: emailContent.text,
     }).catch((e) => console.error("Invite email failed:", e));
+
+    bustEditorsCache();
 
     return NextResponse.json({ ok: true, editor }, { status: 201 });
   } catch (e) {

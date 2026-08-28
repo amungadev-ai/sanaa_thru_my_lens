@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { welcomeEmail, resubscribedEmail } from "@/lib/email-templates";
+import { bustSubscribersCache } from "@/lib/cache-bust";
 
 const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
@@ -48,6 +49,9 @@ export async function POST(req: NextRequest) {
         data: { status: "ACTIVE", name: name ?? existing.name },
       });
 
+      // Bust cache so count updates immediately
+      bustSubscribersCache();
+
       // Send "welcome back" email (non-blocking — don't fail the API if email fails)
       const emailContent = resubscribedEmail(email);
       sendEmail({
@@ -72,6 +76,9 @@ export async function POST(req: NextRequest) {
         source: source || "WEBSITE",
       },
     });
+
+    // Bust cache so count updates immediately
+    bustSubscribersCache();
 
     // Send welcome email (non-blocking — don't fail the API if email fails)
     const emailContent = welcomeEmail(email);

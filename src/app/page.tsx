@@ -2,32 +2,50 @@ import { SiteHeader } from "@/components/blog/SiteHeader";
 import { SiteFooter } from "@/components/blog/SiteFooter";
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { NewsletterForm } from "@/components/blog/NewsletterForm";
-import { getPublishedPosts, getFeaturedPost, getCategories } from "@/lib/posts";
-import { db, withRetry } from "@/lib/db";
+import {
+  getCachedFeaturedPost,
+  getCachedPublishedPosts,
+  getCachedCategories,
+  getCachedSubscriberCount,
+  getCachedPostCountsByCategory,
+} from "@/lib/data-cache";
+import type { PublicPost } from "@/lib/posts";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
 
-// Cache the page for 5 minutes, then regenerate in the background.
-// This dramatically reduces database load — most visitors get a cached page
-// with ZERO database queries.
+// ISR cache — most visitors get a fully cached page (zero DB queries)
 export const revalidate = 300;
 
+function toPublicPost(p: Awaited<ReturnType<typeof getCachedPublishedPosts>>[number]): PublicPost {
+  return {
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    excerpt: p.excerpt,
+    coverImage: p.coverImage,
+    category: p.category,
+    tags: p.tags,
+    author: p.author,
+    views: p.views,
+    readingTime: p.readingTime,
+    createdAt: p.createdAt,
+    featured: p.featured,
+  };
+}
+
 export default async function HomePage() {
-  // Run all independent queries in parallel (3 DB calls instead of 9+)
-  const [featured, recent, categories, subscriberCount, postCountsByCategory] = await Promise.all([
-    getFeaturedPost(),
-    getPublishedPosts({ limit: 7 }),
-    getCategories(),
-    withRetry(() => db.subscriber.count({ where: { status: "ACTIVE" } })),
-    // Single groupBy query replaces N individual count queries
-    withRetry(() =>
-      db.post.groupBy({
-        by: ["category"],
-        where: { status: "PUBLISHED" },
-        _count: { _all: true },
-      })
-    ),
+  // All queries use cross-instance cache (unstable_cache)
+  // On Vercel, only 1 function instance actually queries MySQL; rest get cached data
+  const [featuredRaw, recentRaw, categories, subscriberCount, postCountsByCategory] = await Promise.all([
+    getCachedFeaturedPost(),
+    getCachedPublishedPosts(7),
+    getCachedCategories(),
+    getCachedSubscriberCount(),
+    getCachedPostCountsByCategory(),
   ]);
+
+  const featured = featuredRaw ? toPublicPost(featuredRaw) : null;
+  const recent = recentRaw.map(toPublicPost);
 
   // Split recent: first 3 for top grid, next 4 for "More Stories" sidebar
   const topGrid = recent.filter((p) => p.id !== featured?.id).slice(0, 3);

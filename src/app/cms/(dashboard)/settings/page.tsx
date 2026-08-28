@@ -1,12 +1,12 @@
-import { db } from "@/lib/db";
+import { getCachedSiteSettings, getCachedAdminUser } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "./SettingsForm";
 
-export const revalidate = 60; // Cache for 1 minute
+export const revalidate = 60;
 
 export default async function CmsSettingsPage() {
-  const settings = await db.siteSettings.findUnique({ where: { id: "default" } });
-  const admin = await db.adminUser.findFirst();
+  const settings = await getCachedSiteSettings().catch(() => null);
+  const admin = await getCachedAdminUser().catch(() => null);
 
   return (
     <div className="space-y-6">

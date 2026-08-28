@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { FileText, Eye, Star, Users, ArrowUpRight } from "lucide-react";
-import { db, withRetry } from "@/lib/db";
-import { getPostStats, getRecentPosts, formatViews } from "@/lib/posts";
+import {
+  getCachedPostStats,
+  getCachedRecentPosts,
+  getCachedCategoryStats,
+  getCachedSubscriberCount,
+} from "@/lib/data-cache";
+import { formatViews } from "@/lib/posts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -9,29 +14,15 @@ function formatDate(d: Date): string {
   return d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
 }
 
-// Cache for 30 seconds — fresh enough for admin use, but prevents
-// every click/navigation from hammering the database.
 export const revalidate = 30;
 
-// Default values shown if the database is unreachable
-const DEFAULT_STATS = { total: 0, published: 0, draft: 0, totalViews: 0, featuredCount: 0 };
-const DEFAULT_RECENT: Awaited<ReturnType<typeof getRecentPosts>> = [];
-const DEFAULT_CATEGORY_STATS: { category: string; _count: { _all: number }; _sum: { views: number | null } }[] = [];
-
 export default async function CmsDashboardPage() {
-  // Run all queries with retry + graceful fallback
+  // All queries use cross-instance cache with graceful fallback
   const [stats, recent, categoryStats, subscriberCount] = await Promise.all([
-    getPostStats().catch(() => DEFAULT_STATS),
-    getRecentPosts(6).catch(() => DEFAULT_RECENT),
-    withRetry(() =>
-      db.post.groupBy({
-        by: ["category"],
-        _count: { _all: true },
-        _sum: { views: true },
-        orderBy: { _count: { category: "desc" } },
-      })
-    ).catch(() => DEFAULT_CATEGORY_STATS),
-    withRetry(() => db.subscriber.count({ where: { status: "ACTIVE" } })).catch(() => 0),
+    getCachedPostStats().catch(() => ({ total: 0, published: 0, draft: 0, totalViews: 0, featuredCount: 0 })),
+    getCachedRecentPosts(6).catch(() => []),
+    getCachedCategoryStats().catch(() => []),
+    getCachedSubscriberCount().catch(() => 0),
   ]);
 
   const cards = [
