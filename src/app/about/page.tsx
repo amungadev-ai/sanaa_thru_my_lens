@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Sanaa Thrumylens is an independent Kenyan creative-arts blog documenting the music, literature, culture and people shaping East Africa's creative economy.",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function AboutPage() {
   const categories = await getCategories();

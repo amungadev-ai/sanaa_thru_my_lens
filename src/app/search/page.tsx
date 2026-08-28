@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Search stories across Sanaa Thrumylens.",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function SearchPage() {
   const all = await getPublishedPosts({ limit: 100 });

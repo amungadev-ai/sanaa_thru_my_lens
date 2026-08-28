@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
 
-export const dynamic = "force-static";
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 function escapeXml(text: string): string {
   return text

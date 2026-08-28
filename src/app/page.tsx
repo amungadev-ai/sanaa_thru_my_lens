@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [featured, recent, categories, subscriberCount] = await Promise.all([
