@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { isAuthenticated } from "@/lib/auth";
+import { getCurrentEditor } from "@/lib/editor-auth";
 import { notifySubscribersOfNewPost } from "@/lib/notify-subscribers";
 
 function slugify(text: string): string {
@@ -18,15 +18,16 @@ function estimateReadingTime(html: string): number {
   return Math.max(1, Math.round(words / 200));
 }
 
+/** GET — list the current editor's posts */
 export async function GET() {
-  // Auth-required: list all posts including drafts
-  const authed = await isAuthenticated();
-  if (!authed) {
+  const editor = await getCurrentEditor();
+  if (!editor) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   const posts = await db.post.findMany({
+    where: { authorId: editor.id },
     orderBy: { createdAt: "desc" },
-    take: 100,
     select: {
       id: true,
       title: true,
@@ -34,16 +35,17 @@ export async function GET() {
       status: true,
       category: true,
       views: true,
-      featured: true,
       createdAt: true,
     },
   });
+
   return NextResponse.json({ posts });
 }
 
+/** POST — create a new post owned by the current editor */
 export async function POST(req: NextRequest) {
-  const authed = await isAuthenticated();
-  if (!authed) {
+  const editor = await getCurrentEditor();
+  if (!editor) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -64,6 +66,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "A post with this slug already exists." }, { status: 409 });
     }
 
+    const authorName = editor.name ?? editor.email.split("@")[0];
+
     const post = await db.post.create({
       data: {
         title,
@@ -72,10 +76,11 @@ export async function POST(req: NextRequest) {
         content,
         category: body.category ?? null,
         tags: String(body.tags ?? ""),
-        author: String(body.author ?? "Sanaa Thrumylens"),
+        author: authorName,
+        authorId: editor.id,
         coverImage: body.coverImage ?? null,
         status: body.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
-        featured: Boolean(body.featured),
+        featured: false, // editors can't self-feature
         readingTime: estimateReadingTime(content),
       },
     });
@@ -95,7 +100,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, post }, { status: 201 });
   } catch (e) {
-    console.error("POST /api/posts error:", e);
+    console.error("POST /api/editor/posts error:", e);
     return NextResponse.json({ error: "Failed to create post." }, { status: 500 });
   }
 }

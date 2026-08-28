@@ -6,9 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   FileText,
-  FolderTree,
-  Settings,
-  Users,
+  User,
   LogOut,
   ExternalLink,
   Menu,
@@ -19,13 +17,20 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
-  { href: "/cms", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/cms/posts", label: "Posts", icon: FileText },
-  { href: "/cms/editors", label: "Editors", icon: Users },
-  { href: "/cms/subscribers", label: "Subscribers", icon: Users },
-  { href: "/cms/categories", label: "Categories", icon: FolderTree },
-  { href: "/cms/settings", label: "Settings", icon: Settings },
+  { href: "/editor", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/editor/posts", label: "My Stories", icon: FileText },
+  { href: "/editor/profile", label: "My Profile", icon: User },
 ];
+
+interface EditorShellProps {
+  editor: {
+    id: string;
+    name: string | null;
+    email: string;
+    avatar: string | null;
+  };
+  children: React.ReactNode;
+}
 
 function NavLinks({
   pathname,
@@ -38,8 +43,8 @@ function NavLinks({
     <>
       {NAV.map((item) => {
         const active =
-          item.href === "/cms"
-            ? pathname === "/cms"
+          item.href === "/editor"
+            ? pathname === "/editor"
             : pathname.startsWith(item.href);
         const Icon = item.icon;
         return (
@@ -63,26 +68,33 @@ function NavLinks({
   );
 }
 
-export function CmsShell({ children }: { children: React.ReactNode }) {
+export function EditorShell({ editor, children }: EditorShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/cms/login");
+    await fetch("/api/editor-auth/logout", { method: "POST" });
+    router.push("/editor/login");
     router.refresh();
   };
+
+  const initials = (editor.name ?? editor.email)
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile top bar */}
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3 md:hidden">
-        <Link href="/cms" className="flex items-center gap-2">
+        <Link href="/editor" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <span className="font-serif text-sm font-bold">ST</span>
           </div>
-          <span className="font-serif text-sm font-bold text-sidebar-foreground">CMS</span>
+          <span className="font-serif text-sm font-bold text-sidebar-foreground">Editor</span>
         </Link>
         <Button
           variant="ghost"
@@ -111,22 +123,19 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
       <div className="flex">
         {/* Desktop sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
-          <Link href="/cms" className="mb-6 flex items-center gap-2.5">
+          <Link href="/editor" className="mb-6 flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <span className="font-serif text-base font-bold">ST</span>
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-serif text-sm font-bold text-sidebar-foreground">Sanaa Thrumylens</span>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">CMS Dashboard</span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">Editor Dashboard</span>
             </div>
           </Link>
 
-          <Button
-            asChild
-            className="mb-6 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <Link href="/cms/posts/new">
-              <Plus className="mr-1.5 h-4 w-4" /> New Post
+          <Button asChild className="mb-6 bg-primary text-primary-foreground hover:bg-primary/90">
+            <Link href="/editor/posts/new">
+              <Plus className="mr-1.5 h-4 w-4" /> New Story
             </Link>
           </Button>
 

@@ -60,6 +60,8 @@ interface PostEditorProps {
   initialData: PostEditorData;
   categories: Category[];
   mode: "create" | "edit";
+  apiBase?: string;          // default: "/api/posts" (admin). Editors use "/api/editor/posts"
+  redirectAfterSave?: string; // default: "/cms/posts". Editors use "/editor/posts"
 }
 
 function slugify(text: string): string {
@@ -128,7 +130,7 @@ function generateCoverSvg(title: string, category: string, author: string): stri
 </svg>`;
 }
 
-export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
+export function PostEditor({ initialData, categories, mode, apiBase = "/api/posts", redirectAfterSave = "/cms/posts" }: PostEditorProps) {
   const router = useRouter();
   const [data, setData] = useState<PostEditorData>(initialData);
   const [saving, setSaving] = useState(false);
@@ -277,7 +279,7 @@ export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
     const payload = { ...data, status: publish ? "PUBLISHED" : data.status };
 
     try {
-      const url = mode === "create" ? "/api/posts" : `/api/posts/${data.id}`;
+      const url = mode === "create" ? apiBase : `${apiBase}/${data.id}`;
       const method = mode === "create" ? "POST" : "PUT";
       const res = await fetch(url, {
         method,
@@ -290,7 +292,7 @@ export function PostEditor({ initialData, categories, mode }: PostEditorProps) {
         return;
       }
       toast.success(publish ? "Published!" : "Saved");
-      router.push("/cms/posts");
+      router.push(redirectAfterSave);
       router.refresh();
     } catch {
       toast.error("Network error");

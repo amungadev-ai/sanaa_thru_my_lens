@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { isAuthenticated } from "@/lib/auth";
+import { getCurrentEditor } from "@/lib/editor-auth";
 import { notifySubscribersOfNewPost } from "@/lib/notify-subscribers";
 
 function slugify(text: string): string {
@@ -22,34 +22,40 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
+/** GET — fetch a single post owned by the current editor */
 export async function GET(_req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
-  const authed = await isAuthenticated();
-  if (!authed) {
+  const editor = await getCurrentEditor();
+  if (!editor) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   const post = await db.post.findUnique({ where: { id } });
-  if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!post || post.authorId !== editor.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   return NextResponse.json({ post });
 }
 
+/** PUT — update a post owned by the current editor */
 export async function PUT(req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
-  const authed = await isAuthenticated();
-  if (!authed) {
+  const editor = await getCurrentEditor();
+  if (!editor) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
-    const existing = await db.post.findUnique({ where: { id } });
-    if (!existing) {
-      return NextResponse.json({ error: "Post not found." }, { status: 404 });
-    }
+  const existing = await db.post.findUnique({ where: { id } });
+  if (!existing || existing.authorId !== editor.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
 
+  try {
     const body = await req.json();
 
-    // If title or slug is changing, validate slug uniqueness
-    const newSlug = body.slug ? String(body.slug).trim() : existing.slug;
+    // If slug is changing, validate uniqueness
+    const newSlug = body.slug ? slugify(String(body.slug)) : existing.slug;
     if (newSlug !== existing.slug) {
       const conflict = await db.post.findUnique({ where: { slug: newSlug } });
       if (conflict && conflict.id !== id) {
@@ -61,7 +67,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     const data: Record<string, unknown> = {};
 
     if (body.title !== undefined) data.title = String(body.title);
-    if (body.slug !== undefined) data.slug = slugify(String(body.slug));
+    if (body.slug !== undefined) data.slug = newSlug;
     if (body.excerpt !== undefined) data.excerpt = String(body.excerpt);
     if (body.content !== undefined) {
       data.content = String(body.content);
@@ -69,19 +75,17 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     }
     if (body.category !== undefined) data.category = body.category || null;
     if (body.tags !== undefined) data.tags = String(body.tags);
-    if (body.author !== undefined) data.author = String(body.author);
     if (body.coverImage !== undefined) data.coverImage = body.coverImage || null;
     if (body.status !== undefined) {
       data.status = body.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT";
     }
-    if (body.featured !== undefined) data.featured = Boolean(body.featured);
+    // Editors cannot change featured status or author
 
     const updated = await db.post.update({ where: { id }, data });
 
-    // If post just transitioned to PUBLISHED and hasn't been notified yet,
-    // send subscriber notifications (non-blocking)
+    // If post just transitioned to PUBLISHED, notify subscribers
     const wasDraft = existing.status !== "PUBLISHED";
-    const isNowPublished = (data.status as string) === "PUBLISHED" || (existing.status === "PUBLISHED" && !data.status);
+    const isNowPublished = (data.status as string) === "PUBLISHED";
     const notYetNotified = !existing.notified;
 
     if (wasDraft && isNowPublished && notYetNotified) {
@@ -98,22 +102,28 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
     return NextResponse.json({ ok: true, post: updated });
   } catch (e) {
-    console.error("PUT /api/posts/[id] error:", e);
+    console.error("PUT /api/editor/posts/[id] error:", e);
     return NextResponse.json({ error: "Failed to update post." }, { status: 500 });
   }
 }
 
+/** DELETE — delete a post owned by the current editor */
 export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
-  const authed = await isAuthenticated();
-  if (!authed) {
+  const editor = await getCurrentEditor();
+  if (!editor) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const existing = await db.post.findUnique({ where: { id } });
+  if (!existing || existing.authorId !== editor.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   try {
     await db.post.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ error: "Post not found or already deleted." }, { status: 404 });
+    return NextResponse.json({ error: "Delete failed." }, { status: 500 });
   }
 }

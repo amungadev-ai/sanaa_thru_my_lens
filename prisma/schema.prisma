@@ -20,18 +20,22 @@ model Post {
   category    String?  @db.VarChar(100)
   tags        String   @db.VarChar(500) // comma-separated tags
   author      String   @default("Sanaa Thrumylens") @db.VarChar(150)
+  authorId    String?  @db.VarChar(30) // links to Editor
   status      String   @default("PUBLISHED") @db.VarChar(20) // DRAFT | PUBLISHED
   featured    Boolean  @default(false)
   views       Int      @default(0)
   readingTime Int      @default(5)
+  notified    Boolean  @default(false) // true once subscribers have been emailed
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   comments Comment[]
+  editor   Editor? @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([category])
   @@index([createdAt])
+  @@index([authorId])
 }
 
 model Category {
@@ -90,4 +94,24 @@ model Subscriber {
 
   @@index([status])
   @@index([createdAt])
+}
+
+model Editor {
+  id            String    @id @default(cuid())
+  email         String    @unique @db.VarChar(191)
+  name          String?   @db.VarChar(150)
+  bio           String?   @db.Text
+  avatar        String?   @db.VarChar(500)
+  passwordHash  String?   @db.VarChar(255)
+  role          String    @default("EDITOR") @db.VarChar(30) // EDITOR
+  status        String    @default("PENDING") @db.VarChar(20) // PENDING | ACTIVE | SUSPENDED
+  inviteToken   String?   @unique @db.VarChar(64)
+  inviteExpires DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  posts Post[]
+
+  @@index([status])
+  @@index([email])
 }

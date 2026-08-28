@@ -76,6 +76,7 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-2 text-sm">
               <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
               <li><Link href="/cms" className="text-muted-foreground hover:text-primary">Editor Login</Link></li>
+              <li><Link href="/editor/login" className="text-muted-foreground hover:text-primary">Contributor Login</Link></li>
               <li><a href="mailto:hello@sanaathrumylens.co.ke" className="text-muted-foreground hover:text-primary">Pitch a Story</a></li>
               <li><a href="mailto:hello@sanaathrumylens.co.ke" className="text-muted-foreground hover:text-primary">Contact</a></li>
             </ul>
