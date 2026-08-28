@@ -1,7 +1,7 @@
 /**
  * Server-side helpers for fetching posts / categories.
  */
-import { db } from "./db";
+import { db, withRetry } from "./db";
 
 export interface PublicPost {
   id: string;
@@ -49,22 +49,26 @@ export function toPublicPost(p: {
 }
 
 export async function getPublishedPosts(opts?: { limit?: number; category?: string }): Promise<PublicPost[]> {
-  const posts = await db.post.findMany({
-    where: {
-      status: "PUBLISHED",
-      ...(opts?.category ? { category: opts.category } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    take: opts?.limit ?? 50,
-  });
+  const posts = await withRetry(() =>
+    db.post.findMany({
+      where: {
+        status: "PUBLISHED",
+        ...(opts?.category ? { category: opts.category } : {}),
+      },
+      orderBy: { createdAt: "desc" },
+      take: opts?.limit ?? 50,
+    })
+  );
   return posts.map(toPublicPost);
 }
 
 export async function getFeaturedPost(): Promise<PublicPost | null> {
-  const post = await db.post.findFirst({
-    where: { status: "PUBLISHED", featured: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const post = await withRetry(() =>
+    db.post.findFirst({
+      where: { status: "PUBLISHED", featured: true },
+      orderBy: { createdAt: "desc" },
+    })
+  );
   if (post) return toPublicPost(post);
   // Fallback to most recent published post
   const latest = await db.post.findFirst({

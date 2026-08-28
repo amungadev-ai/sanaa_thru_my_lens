@@ -10,12 +10,14 @@ export const metadata: Metadata = {
     "Sanaa Thrumylens is an independent Kenyan creative-arts blog documenting the music, literature, culture and people shaping East Africa's creative economy.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // Cache for 10 minutes
 
 export default async function AboutPage() {
-  const categories = await getCategories();
-  const totalPosts = await db.post.count({ where: { status: "PUBLISHED" } });
-  const totalViews = await db.post.aggregate({ _sum: { views: true } });
+  const [categories, totalPosts, totalViews] = await Promise.all([
+    getCategories(),
+    db.post.count({ where: { status: "PUBLISHED" } }),
+    db.post.aggregate({ _sum: { views: true } }),
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">

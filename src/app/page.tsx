@@ -3,31 +3,45 @@ import { SiteFooter } from "@/components/blog/SiteFooter";
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { NewsletterForm } from "@/components/blog/NewsletterForm";
 import { getPublishedPosts, getFeaturedPost, getCategories } from "@/lib/posts";
-import { db } from "@/lib/db";
+import { db, withRetry } from "@/lib/db";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+// Cache the page for 5 minutes, then regenerate in the background.
+// This dramatically reduces database load — most visitors get a cached page
+// with ZERO database queries.
+export const revalidate = 300;
 
 export default async function HomePage() {
-  const [featured, recent, categories, subscriberCount] = await Promise.all([
+  // Run all independent queries in parallel (3 DB calls instead of 9+)
+  const [featured, recent, categories, subscriberCount, postCountsByCategory] = await Promise.all([
     getFeaturedPost(),
     getPublishedPosts({ limit: 7 }),
     getCategories(),
-    db.subscriber.count({ where: { status: "ACTIVE" } }),
+    withRetry(() => db.subscriber.count({ where: { status: "ACTIVE" } })),
+    // Single groupBy query replaces N individual count queries
+    withRetry(() =>
+      db.post.groupBy({
+        by: ["category"],
+        where: { status: "PUBLISHED" },
+        _count: { _all: true },
+      })
+    ),
   ]);
 
   // Split recent: first 3 for top grid, next 4 for "More Stories" sidebar
   const topGrid = recent.filter((p) => p.id !== featured?.id).slice(0, 3);
   const moreStories = recent.filter((p) => p.id !== featured?.id).slice(3, 7);
 
-  // Aggregate post counts per category
-  const categoryCounts = await Promise.all(
-    categories.map(async (c) => ({
-      ...c,
-      count: await db.post.count({ where: { status: "PUBLISHED", category: c.name } }),
-    }))
-  );
+  // Merge the groupBy results into the categories array
+  const countMap = new Map<string, number>();
+  for (const c of postCountsByCategory) {
+    if (c.category) countMap.set(c.category, c._count._all);
+  }
+  const categoryCounts = categories.map((c) => ({
+    ...c,
+    count: countMap.get(c.name) ?? 0,
+  }));
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">

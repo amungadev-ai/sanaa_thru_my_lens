@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 1800; // Cache for 30 minutes
 
 function escapeXml(text: string): string {
   return text
