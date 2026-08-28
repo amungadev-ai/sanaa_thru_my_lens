@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Eye, Clock, Plus, ArrowUpRight } from "lucide-react";
 import { formatViews } from "@/lib/posts";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 function formatDate(d: Date): string {
   return d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });

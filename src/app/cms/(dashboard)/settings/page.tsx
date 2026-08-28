@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "./SettingsForm";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // Cache for 1 minute
 
 export default async function CmsSettingsPage() {
   const settings = await db.siteSettings.findUnique({ where: { id: "default" } });

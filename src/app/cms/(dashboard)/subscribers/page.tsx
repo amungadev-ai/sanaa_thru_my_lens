@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Users, Mail, UserCheck, UserX } from "lucide-react";
 import { SubscribersTable } from "./SubscribersTable";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30; // Cache for 30 seconds
 
 export default async function CmsSubscribersPage({
   searchParams,

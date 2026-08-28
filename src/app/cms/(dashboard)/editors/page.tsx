@@ -6,7 +6,7 @@ import { Users, Mail, UserCheck, UserX, Clock } from "lucide-react";
 import { InviteEditorDialog } from "./InviteEditorDialog";
 import { EditorsTable } from "./EditorsTable";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30; // Cache for 30 seconds
 
 export default async function CmsEditorsPage() {
   const [editors, stats] = await Promise.all([

@@ -4,7 +4,7 @@ import { getCategories } from "@/lib/posts";
 import { getCurrentEditor } from "@/lib/editor-auth";
 import { PostEditor } from "@/components/cms/PostEditor";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 10;
 
 interface PageProps {
   params: Promise<{ id: string }>;

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { PostsTable } from "./PostsTable";
 import { formatViews } from "@/lib/posts";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 15; // Cache for 15 seconds (admin needs fresher data)
 
 function formatDate(d: Date): string {
   return d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });

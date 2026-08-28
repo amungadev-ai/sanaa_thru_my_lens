@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { getCategories } from "@/lib/posts";
 import { PostEditor } from "@/components/cms/PostEditor";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 10;
 
 interface PageProps {
   params: Promise<{ id: string }>;

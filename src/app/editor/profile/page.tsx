@@ -1,7 +1,7 @@
 import { getCurrentEditor } from "@/lib/editor-auth";
 import { ProfileForm } from "./ProfileForm";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export const metadata = {
   title: "My Profile",

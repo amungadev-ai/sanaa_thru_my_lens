@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CategoryManager } from "./CategoryManager";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // Cache for 1 minute
 
 export default async function CmsCategoriesPage() {
   const [categories, counts] = await Promise.all([

@@ -105,11 +105,11 @@ export async function getCategoryBySlug(slug: string) {
 
 export async function getPostStats() {
   const [total, published, draft, totalViews, featuredCount] = await Promise.all([
-    db.post.count(),
-    db.post.count({ where: { status: "PUBLISHED" } }),
-    db.post.count({ where: { status: "DRAFT" } }),
-    db.post.aggregate({ _sum: { views: true } }),
-    db.post.count({ where: { featured: true } }),
+    withRetry(() => db.post.count()),
+    withRetry(() => db.post.count({ where: { status: "PUBLISHED" } })),
+    withRetry(() => db.post.count({ where: { status: "DRAFT" } })),
+    withRetry(() => db.post.aggregate({ _sum: { views: true } })),
+    withRetry(() => db.post.count({ where: { featured: true } })),
   ]);
   return {
     total,
@@ -121,20 +121,22 @@ export async function getPostStats() {
 }
 
 export async function getRecentPosts(limit = 5) {
-  return db.post.findMany({
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      status: true,
-      views: true,
-      category: true,
-      createdAt: true,
-      featured: true,
-    },
-  });
+  return withRetry(() =>
+    db.post.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        status: true,
+        views: true,
+        category: true,
+        createdAt: true,
+        featured: true,
+      },
+    })
+  );
 }
 
 export function formatViews(n: number): string {

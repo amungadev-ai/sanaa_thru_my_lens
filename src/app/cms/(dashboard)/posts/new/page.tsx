@@ -1,7 +1,7 @@
 import { PostEditor } from "@/components/cms/PostEditor";
 import { getCategories } from "@/lib/posts";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 10;
 
 export default async function NewPostPage() {
   const categories = await getCategories();

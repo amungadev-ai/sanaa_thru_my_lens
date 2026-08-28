@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { EditorPostsTable } from "./EditorPostsTable";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export default async function EditorPostsPage() {
   const editor = await getCurrentEditor();
