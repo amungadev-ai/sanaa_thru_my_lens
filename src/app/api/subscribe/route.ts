@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
+import { welcomeEmail, resubscribedEmail } from "@/lib/email-templates";
 
 const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
@@ -45,6 +47,16 @@ export async function POST(req: NextRequest) {
         where: { id: existing.id },
         data: { status: "ACTIVE", name: name ?? existing.name },
       });
+
+      // Send "welcome back" email (non-blocking — don't fail the API if email fails)
+      const emailContent = resubscribedEmail(email);
+      sendEmail({
+        to: email,
+        subject: emailContent.subject,
+        html: emailContent.html,
+        text: emailContent.text,
+      }).catch((e) => console.error("Re-subscribe email failed:", e));
+
       return NextResponse.json({
         ok: true,
         message: "Welcome back! You've been re-subscribed to The Weekly Dispatch.",
@@ -60,6 +72,15 @@ export async function POST(req: NextRequest) {
         source: source || "WEBSITE",
       },
     });
+
+    // Send welcome email (non-blocking — don't fail the API if email fails)
+    const emailContent = welcomeEmail(email);
+    sendEmail({
+      to: email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+      text: emailContent.text,
+    }).catch((e) => console.error("Welcome email failed:", e));
 
     return NextResponse.json(
       {
