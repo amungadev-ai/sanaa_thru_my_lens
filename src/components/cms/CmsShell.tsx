@@ -34,22 +34,22 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: null,
     items: [
-      { href: "/cms", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/cms/posts", label: "Posts", icon: FileText },
-      { href: "/cms/categories", label: "Categories", icon: FolderTree },
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/posts", label: "Posts", icon: FileText },
+      { href: "/admin/categories", label: "Categories", icon: FolderTree },
     ],
   },
   {
     label: "Team",
     items: [
-      { href: "/cms/editors", label: "Editors", icon: PenTool },
-      { href: "/cms/subscribers", label: "Subscribers", icon: Users },
+      { href: "/admin/editors", label: "Editors", icon: PenTool },
+      { href: "/admin/subscribers", label: "Subscribers", icon: Users },
     ],
   },
   {
     label: "System",
     items: [
-      { href: "/cms/settings", label: "Settings", icon: Settings },
+      { href: "/admin/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
@@ -72,8 +72,8 @@ function NavLinks({
           )}
           {section.items.map((item) => {
             const active =
-              item.href === "/cms"
-                ? pathname === "/cms"
+              item.href === "/admin"
+                ? pathname === "/admin"
                 : pathname.startsWith(item.href);
             const Icon = item.icon;
             return (
@@ -106,7 +106,7 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/cms/login");
+    router.push("/admin/login");
     router.refresh();
   };
 
@@ -114,11 +114,11 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background">
       {/* Mobile top bar */}
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3 md:hidden">
-        <Link href="/cms" className="flex items-center gap-2">
+        <Link href="/admin" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <span className="font-serif text-sm font-bold">ST</span>
           </div>
-          <span className="font-serif text-sm font-bold text-sidebar-foreground">CMS</span>
+          <span className="font-serif text-sm font-bold text-sidebar-foreground">Admin</span>
         </Link>
         <Button
           variant="ghost"
@@ -147,13 +147,13 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
       <div className="flex">
         {/* Desktop sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
-          <Link href="/cms" className="mb-6 flex items-center gap-2.5">
+          <Link href="/admin" className="mb-6 flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <span className="font-serif text-base font-bold">ST</span>
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-serif text-sm font-bold text-sidebar-foreground">Sanaa Thrumylens</span>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">CMS Dashboard</span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">Admin Dashboard</span>
             </div>
           </Link>
 
@@ -161,7 +161,7 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
             asChild
             className="mb-6 bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Link href="/cms/posts/new">
+            <Link href="/admin/posts/new">
               <Plus className="mr-1.5 h-4 w-4" /> New Post
             </Link>
           </Button>

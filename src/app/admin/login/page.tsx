@@ -9,7 +9,7 @@ export const metadata = {
 export default async function CmsLoginPage() {
   // Already authenticated? Go to dashboard.
   const authed = await isAuthenticated();
-  if (authed) redirect("/cms");
+  if (authed) redirect("/admin");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-sidebar px-4 py-12">

@@ -81,13 +81,13 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 /**
- * Require auth — redirect to /cms/login if not authenticated.
+ * Require auth — redirect to /admin/login if not authenticated.
  * Use in CMS pages/layouts.
  */
 export async function requireAuth(): Promise<void> {
   const authed = await isAuthenticated();
   if (!authed) {
     const { redirect } = await import("next/navigation");
-    redirect("/cms/login");
+    redirect("/admin/login");
   }
 }

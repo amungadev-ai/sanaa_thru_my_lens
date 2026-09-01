@@ -30,7 +30,7 @@ export default async function CmsPostsPage({
           </p>
         </div>
         <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-          <Link href="/cms/posts/new">
+          <Link href="/admin/posts/new">
             <Plus className="mr-2 h-4 w-4" /> New Post
           </Link>
         </Button>

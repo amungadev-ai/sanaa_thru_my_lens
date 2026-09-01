@@ -61,7 +61,7 @@ interface PostEditorProps {
   categories: Category[];
   mode: "create" | "edit";
   apiBase?: string;          // default: "/api/posts" (admin). Editors use "/api/editor/posts"
-  redirectAfterSave?: string; // default: "/cms/posts". Editors use "/editor/posts"
+  redirectAfterSave?: string; // default: "/admin/posts". Editors use "/editor/posts"
 }
 
 function slugify(text: string): string {
@@ -130,7 +130,7 @@ function generateCoverSvg(title: string, category: string, author: string): stri
 </svg>`;
 }
 
-export function PostEditor({ initialData, categories, mode, apiBase = "/api/posts", redirectAfterSave = "/cms/posts" }: PostEditorProps) {
+export function PostEditor({ initialData, categories, mode, apiBase = "/api/posts", redirectAfterSave = "/admin/posts" }: PostEditorProps) {
   const router = useRouter();
   const [data, setData] = useState<PostEditorData>(initialData);
   const [saving, setSaving] = useState(false);
@@ -307,7 +307,7 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link
-            href="/cms/posts"
+            href="/admin/posts"
             className="rounded-md p-2 text-muted-foreground hover:bg-secondary"
             title="Back to posts"
           >

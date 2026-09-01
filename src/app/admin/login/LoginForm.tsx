@@ -29,7 +29,7 @@ export function LoginForm() {
         return;
       }
       toast.success("Welcome back, editor.");
-      router.push("/cms");
+      router.push("/admin");
       router.refresh();
     } catch {
       toast.error("Network error. Try again.");

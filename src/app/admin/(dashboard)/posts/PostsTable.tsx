@@ -74,7 +74,7 @@ export function PostsTable({ posts }: { posts: PostRow[] }) {
           Try a different search, or write your first story.
         </p>
         <Button asChild className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90">
-          <Link href="/cms/posts/new">New Post</Link>
+          <Link href="/admin/posts/new">New Post</Link>
         </Button>
       </div>
     );
@@ -102,7 +102,7 @@ export function PostsTable({ posts }: { posts: PostRow[] }) {
                     <Star className="h-3.5 w-3.5 flex-shrink-0 fill-amber-500 text-amber-500" />
                   )}
                   <Link
-                    href={`/cms/posts/${p.id}/edit`}
+                    href={`/admin/posts/${p.id}/edit`}
                     className="line-clamp-1 font-medium hover:text-primary"
                   >
                     {p.title}
@@ -148,7 +148,7 @@ export function PostsTable({ posts }: { posts: PostRow[] }) {
                     </Link>
                   )}
                   <Link
-                    href={`/cms/posts/${p.id}/edit`}
+                    href={`/admin/posts/${p.id}/edit`}
                     title="Edit"
                     className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
                   >

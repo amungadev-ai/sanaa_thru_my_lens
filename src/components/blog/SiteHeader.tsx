@@ -74,7 +74,7 @@ export function SiteHeader() {
             size="sm"
             className="hidden md:inline-flex bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Link href="/cms">CMS</Link>
+            <Link href="/admin">Admin</Link>
           </Button>
 
           {/* Mobile menu trigger */}
@@ -116,11 +116,11 @@ export function SiteHeader() {
               );
             })}
             <Link
-              href="/cms"
+              href="/admin"
               onClick={() => setOpen(false)}
               className="mt-2 rounded-md bg-primary px-3 py-2.5 text-center text-sm font-semibold text-primary-foreground"
             >
-              CMS Dashboard
+              Admin Dashboard
             </Link>
           </nav>
         </div>

@@ -61,7 +61,7 @@ export default async function CmsDashboardPage() {
           </p>
         </div>
         <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-          <Link href="/cms/posts/new">
+          <Link href="/admin/posts/new">
             <FileText className="mr-2 h-4 w-4" /> Write a new story
           </Link>
         </Button>
@@ -92,7 +92,7 @@ export default async function CmsDashboardPage() {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-lg font-bold">Recent Posts</h2>
-            <Link href="/cms/posts" className="text-sm font-medium text-primary hover:underline">
+            <Link href="/admin/posts" className="text-sm font-medium text-primary hover:underline">
               View all
             </Link>
           </div>
@@ -111,7 +111,7 @@ export default async function CmsDashboardPage() {
                   <tr key={p.id} className="border-b border-border/60 last:border-0">
                     <td className="py-3 pr-4">
                       <Link
-                        href={`/cms/posts/${p.id}/edit`}
+                        href={`/admin/posts/${p.id}/edit`}
                         className="line-clamp-1 font-medium hover:text-primary"
                       >
                         {p.title}
@@ -169,7 +169,7 @@ export default async function CmsDashboardPage() {
         <h2 className="font-serif text-lg font-bold">Quick Actions</h2>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Link
-            href="/cms/posts/new"
+            href="/admin/posts/new"
             className="group flex items-center justify-between rounded-md border border-border p-4 transition-colors hover:border-primary/40 hover:bg-secondary/40"
           >
             <div>
@@ -179,7 +179,7 @@ export default async function CmsDashboardPage() {
             <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
           <Link
-            href="/cms/posts"
+            href="/admin/posts"
             className="group flex items-center justify-between rounded-md border border-border p-4 transition-colors hover:border-primary/40 hover:bg-secondary/40"
           >
             <div>
@@ -189,7 +189,7 @@ export default async function CmsDashboardPage() {
             <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
           <Link
-            href="/cms/categories"
+            href="/admin/categories"
             className="group flex items-center justify-between rounded-md border border-border p-4 transition-colors hover:border-primary/40 hover:bg-secondary/40"
           >
             <div>
@@ -199,7 +199,7 @@ export default async function CmsDashboardPage() {
             <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
           <Link
-            href="/cms/subscribers"
+            href="/admin/subscribers"
             className="group flex items-center justify-between rounded-md border border-border p-4 transition-colors hover:border-primary/40 hover:bg-secondary/40"
           >
             <div>
