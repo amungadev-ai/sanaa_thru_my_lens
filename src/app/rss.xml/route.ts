@@ -30,7 +30,7 @@ export async function GET() {
       <description>${escapeXml(p.excerpt)}</description>
       ${p.category ? `<category>${escapeXml(p.category)}</category>` : ""}
       <author>${escapeXml(p.author)}</author>
-      <pubDate>${p.createdAt.toUTCString()}</pubDate>
+      <pubDate>${new Date(p.createdAt).toUTCString()}</pubDate>
     </item>`
     )
     .join("");

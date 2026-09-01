@@ -24,13 +24,7 @@ function gradientFor(category: string | null): string {
   return CATEGORY_GRADIENTS[category ?? ""] ?? "from-stone-600 to-stone-800";
 }
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-KE", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { formatDateSafe } from "@/lib/date-utils";
 
 export function ArticleCard({ post, variant = "default", className, priority }: ArticleCardProps) {
   if (variant === "compact") {
@@ -82,7 +76,7 @@ export function ArticleCard({ post, variant = "default", className, priority }: 
               {post.category}
             </span>
             <span className="text-muted-foreground">·</span>
-            <span className="text-muted-foreground">{formatDate(post.createdAt)}</span>
+            <span className="text-muted-foreground">{formatDateSafe(post.createdAt)}</span>
           </div>
           <h3 className="mt-2 font-serif text-xl font-bold leading-tight transition-colors group-hover:text-primary">
             {post.title}
@@ -132,7 +126,7 @@ export function ArticleCard({ post, variant = "default", className, priority }: 
           <div className="mt-4 flex items-center gap-4 text-xs text-white/70">
             <span>By {post.author}</span>
             <span>·</span>
-            <span>{formatDate(post.createdAt)}</span>
+            <span>{formatDateSafe(post.createdAt)}</span>
             <span>·</span>
             <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{post.readingTime} min read</span>
           </div>
@@ -164,7 +158,7 @@ export function ArticleCard({ post, variant = "default", className, priority }: 
             {post.category}
           </span>
           <span className="text-muted-foreground">·</span>
-          <span className="text-muted-foreground">{formatDate(post.createdAt)}</span>
+          <span className="text-muted-foreground">{formatDateSafe(post.createdAt)}</span>
         </div>
         <h3 className="mt-2 font-serif text-lg font-bold leading-snug transition-colors group-hover:text-primary">
           {post.title}

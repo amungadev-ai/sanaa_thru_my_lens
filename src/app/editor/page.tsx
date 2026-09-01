@@ -9,9 +9,7 @@ import { formatViews } from "@/lib/posts";
 
 export const revalidate = 30;
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
-}
+import { formatDateSafe } from "@/lib/date-utils";
 
 export default async function EditorDashboardPage() {
   const editor = await getCurrentEditor();
@@ -158,7 +156,7 @@ export default async function EditorDashboardPage() {
                       </span>
                     </td>
                     <td className="py-3 pr-4 text-muted-foreground">{formatViews(p.views)}</td>
-                    <td className="py-3 text-muted-foreground">{formatDate(p.createdAt)}</td>
+                    <td className="py-3 text-muted-foreground">{formatDateSafe(p.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

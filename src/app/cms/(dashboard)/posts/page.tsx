@@ -7,9 +7,7 @@ import { PostsTable } from "./PostsTable";
 
 export const revalidate = 15;
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
-}
+import { formatDateSafe } from "@/lib/date-utils";
 
 export default async function CmsPostsPage({
   searchParams,
@@ -71,7 +69,7 @@ export default async function CmsPostsPage({
           category: p.category,
           views: p.views,
           featured: p.featured,
-          createdAt: formatDate(p.createdAt),
+          createdAt: formatDateSafe(p.createdAt),
         }))} />
       </Card>
     </div>

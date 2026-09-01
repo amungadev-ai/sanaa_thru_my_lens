@@ -51,13 +51,7 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-KE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
+import { formatDateLongSafe } from "@/lib/date-utils";
 
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
@@ -119,7 +113,7 @@ export default async function PostPage({ params }: PageProps) {
             <span className="hidden text-muted-foreground sm:inline">·</span>
             <span className="flex items-center gap-1.5 text-muted-foreground">
               <Calendar className="h-3.5 w-3.5" />
-              {formatDate(post.createdAt)}
+              {formatDateLongSafe(post.createdAt)}
             </span>
             <span className="flex items-center gap-1.5 text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />

@@ -10,9 +10,7 @@ import { formatViews } from "@/lib/posts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-function formatDate(d: Date): string {
-  return d.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" });
-}
+import { formatDateSafe } from "@/lib/date-utils";
 
 export const revalidate = 30;
 
@@ -134,7 +132,7 @@ export default async function CmsDashboardPage() {
                       </span>
                     </td>
                     <td className="py-3 pr-4 text-muted-foreground">{formatViews(p.views)}</td>
-                    <td className="py-3 text-muted-foreground">{formatDate(p.createdAt)}</td>
+                    <td className="py-3 text-muted-foreground">{formatDateSafe(p.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -79,28 +79,27 @@ export async function getFeaturedPost(): Promise<PublicPost | null> {
 }
 
 export async function getPostBySlug(slug: string) {
-  const post = await db.post.findUnique({ where: { slug } });
-  return post;
+  // Use the cached version (handles Date → string serialization safely)
+  const { getCachedPostBySlug } = await import("./data-cache");
+  return getCachedPostBySlug(slug);
 }
 
 export async function getRelatedPosts(post: { id: string; category: string | null }, limit = 3) {
-  const where = post.category
-    ? { status: "PUBLISHED" as const, category: post.category, NOT: { id: post.id } }
-    : { status: "PUBLISHED" as const, NOT: { id: post.id } };
-  const posts = await db.post.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    take: limit,
-  });
-  return posts.map(toPublicPost);
+  // Use the cached published posts and filter
+  const { getCachedPublishedPosts } = await import("./data-cache");
+  const all = await getCachedPublishedPosts(limit + 10, post.category ?? undefined);
+  const filtered = all.filter((p) => p.id !== post.id).slice(0, limit);
+  return filtered.map(toPublicPost);
 }
 
 export async function getCategories() {
-  return db.category.findMany({ orderBy: { name: "asc" } });
+  const { getCachedCategories } = await import("./data-cache");
+  return getCachedCategories();
 }
 
 export async function getCategoryBySlug(slug: string) {
-  return db.category.findUnique({ where: { slug } });
+  const { getCachedCategoryBySlug } = await import("./data-cache");
+  return getCachedCategoryBySlug(slug);
 }
 
 export async function getPostStats() {
