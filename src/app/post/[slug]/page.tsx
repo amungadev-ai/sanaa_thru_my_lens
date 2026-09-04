@@ -21,6 +21,7 @@ import { ArticleCard } from "@/components/blog/ArticleCard";
 import { ShareButtons } from "@/components/blog/ShareButtons";
 import { ViewTracker } from "@/components/blog/ViewTracker";
 import { NewsletterForm } from "@/components/blog/NewsletterForm";
+import { CommentSection } from "@/components/blog/CommentSection";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -196,6 +197,13 @@ export default async function PostPage({ params }: PageProps) {
         <section className="border-t border-border">
           <div className="mx-auto max-w-3xl px-4 py-12 md:px-6">
             <NewsletterForm />
+          </div>
+        </section>
+
+        {/* Comments */}
+        <section className="border-t border-border">
+          <div className="mx-auto max-w-3xl px-4 py-12 md:px-6">
+            <CommentSection postId={post.id} commentCount={post.commentCount} />
           </div>
         </section>
 

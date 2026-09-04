@@ -337,3 +337,54 @@ export const getCachedAllEditorsForAssignment = unstable_cache(
   ["editors-for-assignment"],
   { revalidate: 30, tags: ["editors"] }
 );
+
+// ─── Comment queries ───────────────────────────────────────────────────
+
+export const getCachedCommentsForModeration = unstable_cache(
+  async (filter: "pending" | "approved" | "all") => {
+    return withRetry(() =>
+      db.comment.findMany({
+        where: filter === "all" ? {} : { approved: filter === "approved" },
+        orderBy: { createdAt: "desc" },
+        take: 200,
+        include: {
+          post: {
+            select: { id: true, title: true, slug: true, authorId: true },
+          },
+          _count: { select: { votes: true } },
+        },
+      })
+    );
+  },
+  ["comments-moderation"],
+  { revalidate: 15, tags: ["posts"] } // comments change with posts
+);
+
+export const getCachedEditorComments = unstable_cache(
+  async (editorId: string, filter: "pending" | "approved" | "all") => {
+    return withRetry(async () => {
+      // Find posts owned by this editor
+      const postIds = await db.post.findMany({
+        where: { authorId: editorId },
+        select: { id: true },
+      });
+      const ids = postIds.map((p) => p.id);
+      if (ids.length === 0) return [];
+
+      return db.comment.findMany({
+        where: {
+          postId: { in: ids },
+          ...(filter === "all" ? {} : { approved: filter === "approved" }),
+        },
+        orderBy: { createdAt: "desc" },
+        take: 200,
+        include: {
+          post: { select: { id: true, title: true, slug: true } },
+          _count: { select: { votes: true } },
+        },
+      });
+    });
+  },
+  ["editor-comments-moderation"],
+  { revalidate: 15, tags: ["posts"] }
+);

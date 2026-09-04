@@ -11,6 +11,7 @@ import {
   Users,
   PenTool,
   CalendarDays,
+  MessageCircle,
   LogOut,
   ExternalLink,
   Menu,
@@ -46,6 +47,12 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/admin/editors", label: "Editors", icon: PenTool },
       { href: "/admin/subscribers", label: "Subscribers", icon: Users },
+    ],
+  },
+  {
+    label: "Community",
+    items: [
+      { href: "/admin/comments", label: "Comments", icon: MessageCircle },
     ],
   },
   {
