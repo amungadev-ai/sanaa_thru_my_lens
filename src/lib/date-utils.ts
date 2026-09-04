@@ -37,9 +37,11 @@ export function formatDateLongSafe(d: Date | string): string {
 }
 
 /**
- * Convert any date-like value to a Date object (for downstream code
- * that needs a real Date).
+ * Convert any date-like value to an ISO string.
+ * Handles both Date objects and ISO strings (from unstable_cache).
  */
-export function toDate(d: Date | string): Date {
-  return typeof d === "string" ? new Date(d) : d;
+export function toISOStringSafe(d: Date | string): string {
+  const date = typeof d === "string" ? new Date(d) : d;
+  if (isNaN(date.getTime())) return new Date(0).toISOString();
+  return date.toISOString();
 }

@@ -1,3 +1,4 @@
+import { toISOStringSafe } from "@/lib/date-utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: PageProps) {
       title: post.title,
       description: post.excerpt,
       type: "article",
-      publishedTime: post.createdAt.toISOString(),
+      publishedTime: toISOStringSafe(post.createdAt),
       authors: [post.author],
       images: post.coverImage ? [{ url: post.coverImage }] : undefined,
     },

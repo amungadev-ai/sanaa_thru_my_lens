@@ -1,3 +1,4 @@
+import { toISOStringSafe } from "@/lib/date-utils";
 import Link from "next/link";
 import { getCachedAllSubscribers, getCachedSubscriberStats } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
@@ -118,7 +119,7 @@ export default async function CmsSubscribersPage({
             name: s.name ?? "",
             status: s.status,
             source: s.source,
-            createdAt: s.createdAt.toISOString(),
+            createdAt: toISOStringSafe(s.createdAt),
           }))}
         />
       </Card>

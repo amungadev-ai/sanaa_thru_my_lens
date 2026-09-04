@@ -1,3 +1,4 @@
+import { toISOStringSafe } from "@/lib/date-utils";
 import Link from "next/link";
 import { getCachedAllEditors, getCachedEditorStats } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
@@ -96,7 +97,7 @@ export default async function CmsEditorsPage() {
           name: e.name ?? "",
           status: e.status,
           postCount: e._count.posts,
-          createdAt: e.createdAt.toISOString(),
+          createdAt: toISOStringSafe(e.createdAt),
         }))} />
       </Card>
     </div>

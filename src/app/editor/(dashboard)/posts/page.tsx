@@ -1,3 +1,4 @@
+import { toISOStringSafe } from "@/lib/date-utils";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { getCurrentEditor } from "@/lib/editor-auth";
@@ -51,7 +52,7 @@ export default async function EditorPostsPage() {
             status: p.status,
             category: p.category,
             views: p.views,
-            createdAt: p.createdAt.toISOString(),
+            createdAt: toISOStringSafe(p.createdAt),
           }))}
         />
       </Card>
