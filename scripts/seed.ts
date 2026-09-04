@@ -151,6 +151,27 @@ async function seedAdmin() {
   console.log(`  ✓ ${email} / ${password}`);
 }
 
+async function seedTestEditor() {
+  console.log("→ Seeding test editor");
+  const email = "editor@sanaathrumylens.co.ke";
+  const password = "Editor254!";
+  const { hashPassword } = await import("../src/lib/editor-auth");
+  const passwordHash = await hashPassword(password);
+
+  const existing = await db.editor.findUnique({ where: { email } });
+  if (existing) {
+    await db.editor.update({
+      where: { id: existing.id },
+      data: { name: "Test Editor", passwordHash, status: "ACTIVE", role: "EDITOR", inviteToken: null, inviteExpires: null },
+    });
+  } else {
+    await db.editor.create({
+      data: { email, name: "Test Editor", passwordHash, status: "ACTIVE", role: "EDITOR" },
+    });
+  }
+  console.log(`  ✓ ${email} / ${password}`);
+}
+
 async function seedSiteSettings() {
   console.log("→ Seeding site settings");
   await db.siteSettings.upsert({
@@ -224,6 +245,7 @@ async function main() {
   console.log("Seeding Sanaa Thrumylens database…\n");
   await seedCategories();
   await seedAdmin();
+  await seedTestEditor();
   await seedSiteSettings();
   await seedPosts();
   console.log("\n✅ Seed complete.");

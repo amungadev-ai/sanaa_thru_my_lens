@@ -77,6 +77,9 @@ export function EditorLoginForm() {
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
       </Button>
+      <p className="text-center text-xs text-sidebar-foreground/50">
+        Demo: editor@sanaathrumylens.co.ke · Editor254!
+      </p>
     </form>
   );
 }
