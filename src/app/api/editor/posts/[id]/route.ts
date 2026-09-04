@@ -77,9 +77,15 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     if (body.tags !== undefined) data.tags = String(body.tags);
     if (body.coverImage !== undefined) data.coverImage = body.coverImage || null;
     if (body.status !== undefined) {
-      data.status = body.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT";
+      // Editors can set: IDEA, DRAFTING, IN_REVIEW, SCHEDULED, PUBLISHED
+      const validEditorStatuses = ["IDEA", "DRAFTING", "IN_REVIEW", "SCHEDULED", "PUBLISHED", "DRAFT"];
+      data.status = validEditorStatuses.includes(String(body.status)) ? String(body.status) : existing.status;
     }
-    // Editors cannot change featured status or author
+    if (body.scheduledAt !== undefined) {
+      data.scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null;
+    }
+    if (body.calendarNote !== undefined) data.calendarNote = body.calendarNote || null;
+    // Editors cannot change featured status, author, or authorId
 
     const updated = await db.post.update({ where: { id }, data });
 

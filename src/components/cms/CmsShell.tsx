@@ -10,6 +10,7 @@ import {
   Settings,
   Users,
   PenTool,
+  CalendarDays,
   LogOut,
   ExternalLink,
   Menu,
@@ -35,6 +36,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: null,
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/calendar", label: "Calendar", icon: CalendarDays },
       { href: "/admin/posts", label: "Posts", icon: FileText },
       { href: "/admin/categories", label: "Categories", icon: FolderTree },
     ],

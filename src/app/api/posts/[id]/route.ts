@@ -71,11 +71,27 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     if (body.category !== undefined) data.category = body.category || null;
     if (body.tags !== undefined) data.tags = String(body.tags);
     if (body.author !== undefined) data.author = String(body.author);
+    if (body.authorId !== undefined) data.authorId = body.authorId || null;
     if (body.coverImage !== undefined) data.coverImage = body.coverImage || null;
     if (body.status !== undefined) {
-      data.status = body.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT";
+      // Accept all 6 statuses
+      const validStatuses = ["IDEA", "DRAFTING", "IN_REVIEW", "SCHEDULED", "PUBLISHED", "ARCHIVED", "DRAFT"];
+      data.status = validStatuses.includes(String(body.status)) ? String(body.status) : existing.status;
     }
+    if (body.scheduledAt !== undefined) {
+      data.scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null;
+    }
+    if (body.calendarNote !== undefined) data.calendarNote = body.calendarNote || null;
     if (body.featured !== undefined) data.featured = Boolean(body.featured);
+
+    // If authorId changed, update the author name too
+    if (body.authorId !== undefined) {
+      const newAuthorId = body.authorId || null;
+      if (newAuthorId) {
+        const editor = await db.editor.findUnique({ where: { id: newAuthorId } });
+        if (editor) data.author = editor.name ?? editor.email.split("@")[0];
+      }
+    }
 
     const updated = await db.post.update({ where: { id }, data });
 

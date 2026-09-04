@@ -11,23 +11,26 @@ datasource db {
 }
 
 model Post {
-  id          String   @id @default(cuid())
-  title       String   @db.VarChar(255)
-  slug        String   @unique @db.VarChar(191)
-  excerpt     String   @db.Text
-  content     String   @db.LongText // HTML content
-  coverImage  String?  @db.VarChar(500)
-  category    String?  @db.VarChar(100)
-  tags        String   @db.VarChar(500) // comma-separated tags
-  author      String   @default("Sanaa Thrumylens") @db.VarChar(150)
-  authorId    String?  @db.VarChar(30) // links to Editor
-  status      String   @default("PUBLISHED") @db.VarChar(20) // DRAFT | PUBLISHED
-  featured    Boolean  @default(false)
-  views       Int      @default(0)
-  readingTime Int      @default(5)
-  notified    Boolean  @default(false) // true once subscribers have been emailed
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String    @id @default(cuid())
+  title           String    @db.VarChar(255)
+  slug            String    @unique @db.VarChar(191)
+  excerpt         String    @db.Text
+  content         String    @db.LongText // HTML content
+  coverImage      String?   @db.VarChar(500)
+  category        String?   @db.VarChar(100)
+  tags            String    @db.VarChar(500) // comma-separated tags
+  author          String    @default("Sanaa Thrumylens") @db.VarChar(150)
+  authorId        String?   @db.VarChar(30) // links to Editor
+  status          String    @default("DRAFT") @db.VarChar(20) // IDEA | DRAFTING | IN_REVIEW | SCHEDULED | PUBLISHED | ARCHIVED
+  scheduledAt     DateTime? // when the post is planned to go live (planning label for now)
+  calendarNote    String?   @db.VarChar(500) // short note for the calendar
+  featured        Boolean   @default(false)
+  views           Int       @default(0)
+  readingTime     Int       @default(5)
+  notified        Boolean   @default(false) // true once subscribers have been emailed
+  commentCount    Int       @default(0) // denormalized for performance
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   comments Comment[]
   editor   Editor? @relation(fields: [authorId], references: [id], onDelete: SetNull)
@@ -36,6 +39,7 @@ model Post {
   @@index([category])
   @@index([createdAt])
   @@index([authorId])
+  @@index([scheduledAt])
 }
 
 model Category {
@@ -57,18 +61,41 @@ model AdminUser {
 }
 
 model Comment {
-  id        String   @id @default(cuid())
-  postId    String
-  name      String   @db.VarChar(150)
-  email     String   @db.VarChar(191)
-  content   String   @db.Text
-  approved  Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  postId      String
+  authorType  String   @db.VarChar(20) // READER | SUBSCRIBER | EDITOR | ADMIN
+  authorId    String?  @db.VarChar(30) // Reader.id or Editor.id or AdminUser.id
+  authorName  String   @db.VarChar(150)
+  authorEmail String   @db.VarChar(191)
+  content     String   @db.Text
+  parentId    String?  @db.VarChar(30) // for one-level threading
+  approved    Boolean  @default(false) // false = pending moderation, true = visible
+  isEdited    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+  votes    CommentVote[]
 
   @@index([postId])
   @@index([approved])
+  @@index([parentId])
+  @@index([authorType, authorId])
+}
+
+model CommentVote {
+  id          String   @id @default(cuid())
+  commentId   String
+  voterType   String   @db.VarChar(20) // READER | SUBSCRIBER | EDITOR | ADMIN
+  voterId     String   @db.VarChar(30)
+  createdAt   DateTime @default(now())
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, voterType, voterId]) // one vote per person per comment
+  @@index([commentId])
 }
 
 model SiteSettings {
@@ -80,7 +107,7 @@ model SiteSettings {
   socialTwitter   String? @db.VarChar(150)
   socialInstagram String? @db.VarChar(150)
   socialFacebook  String? @db.VarChar(255)
-  socialEmail     String? @db.VarChar(191)
+  socialEmail    String? @db.VarChar(191)
 }
 
 model Subscriber {
@@ -114,4 +141,20 @@ model Editor {
 
   @@index([status])
   @@index([email])
+}
+
+model Reader {
+  id              String   @id @default(cuid())
+  email           String   @unique @db.VarChar(191)
+  name            String   @db.VarChar(150)
+  passwordHash    String?  @db.VarChar(255) // optional — hybrid auth
+  magicLinkToken  String?  @unique @db.VarChar(64)
+  magicLinkExpiry DateTime?
+  firstCommentApproved Boolean @default(false) // true after first comment is approved
+  status          String   @default("ACTIVE") @db.VarChar(20) // ACTIVE | SUSPENDED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
 }

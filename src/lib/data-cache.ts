@@ -255,3 +255,85 @@ export const getCachedAdminUser = unstable_cache(
   ["admin-user"],
   { revalidate: 60, tags: ["settings"] }
 );
+
+// ─── Calendar queries ─────────────────────────────────────────────────
+
+export const getCachedCalendarPosts = unstable_cache(
+  async (monthStart: string, monthEnd: string) => {
+    return withRetry(() =>
+      db.post.findMany({
+        where: {
+          OR: [
+            // Posts scheduled in this month
+            { scheduledAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+            // Posts published in this month
+            { status: "PUBLISHED", createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+            // Ideas/drafts assigned in this month (by createdAt)
+            { status: { in: ["IDEA", "DRAFTING"] }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+          ],
+        },
+        orderBy: { scheduledAt: "asc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          status: true,
+          category: true,
+          authorId: true,
+          author: true,
+          scheduledAt: true,
+          calendarNote: true,
+          createdAt: true,
+        },
+      })
+    );
+  },
+  ["calendar-posts"],
+  { revalidate: 15, tags: ["posts"] }
+);
+
+export const getCachedEditorCalendarPosts = unstable_cache(
+  async (editorId: string, monthStart: string, monthEnd: string) => {
+    return withRetry(() =>
+      db.post.findMany({
+        where: {
+          authorId: editorId,
+          OR: [
+            { scheduledAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+            { status: "PUBLISHED", createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+            { status: { in: ["IDEA", "DRAFTING"] }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+          ],
+        },
+        orderBy: { scheduledAt: "asc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          status: true,
+          category: true,
+          authorId: true,
+          author: true,
+          scheduledAt: true,
+          calendarNote: true,
+          createdAt: true,
+        },
+      })
+    );
+  },
+  ["editor-calendar-posts"],
+  { revalidate: 15, tags: ["posts"] }
+);
+
+export const getCachedAllEditorsForAssignment = unstable_cache(
+  async () => {
+    return withRetry(() =>
+      db.editor.findMany({
+        where: { status: "ACTIVE" },
+        orderBy: { name: "asc" },
+        select: { id: true, name: true, email: true },
+      })
+    );
+  },
+  ["editors-for-assignment"],
+  { revalidate: 30, tags: ["editors"] }
+);

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   FileText,
   User,
+  CalendarDays,
   LogOut,
   ExternalLink,
   Menu,
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 
 const NAV = [
   { href: "/editor", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/editor/calendar", label: "My Calendar", icon: CalendarDays },
   { href: "/editor/posts", label: "My Stories", icon: FileText },
   { href: "/editor/profile", label: "My Profile", icon: User },
 ];
