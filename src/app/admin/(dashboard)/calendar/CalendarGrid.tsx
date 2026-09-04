@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Pencil, Plus } from "lucide-react";
-import { CalendarPostDialog } from "./CalendarPostDialog";
+import { CalendarPostDialog } from "@/app/admin/(dashboard)/calendar/CalendarPostDialog";
 
 interface CalendarPost {
   id: string;

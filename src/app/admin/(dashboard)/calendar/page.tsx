@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
 import { getCachedCalendarPosts, getCachedAllEditorsForAssignment } from "@/lib/data-cache";
 import { CalendarGrid } from "./CalendarGrid";
-import { CalendarList } from "./CalendarList";
-import { CalendarHeader } from "./CalendarHeader";
+import { CalendarList } from "@/components/calendar/CalendarList";
+import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { Card } from "@/components/ui/card";
 
 export const revalidate = 15;

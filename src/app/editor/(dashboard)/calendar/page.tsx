@@ -1,8 +1,8 @@
 import { getCurrentEditor } from "@/lib/editor-auth";
 import { getCachedEditorCalendarPosts } from "@/lib/data-cache";
 import { EditorCalendarGrid } from "./EditorCalendarGrid";
-import { CalendarList } from "../../admin/(dashboard)/calendar/CalendarList";
-import { CalendarHeader } from "../../admin/(dashboard)/calendar/CalendarHeader";
+import { CalendarList } from "@/components/calendar/CalendarList";
+import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 
 export const revalidate = 15;
 
