@@ -28,7 +28,7 @@ export function LoginForm() {
         toast.error(data.error ?? "Login failed");
         return;
       }
-      toast.success("Welcome back, editor.");
+      toast.success("Welcome back, admin.");
       router.push("/admin");
       router.refresh();
     } catch {

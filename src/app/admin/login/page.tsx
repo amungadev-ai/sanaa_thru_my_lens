@@ -5,7 +5,7 @@ import { LoginForm } from "./LoginForm";
 export const runtime = "nodejs";
 
 export const metadata = {
-  title: "Editor Login",
+  title: "Admin Login",
 };
 
 export default async function CmsLoginPage() {
@@ -23,7 +23,7 @@ export default async function CmsLoginPage() {
           <h1 className="mt-4 font-serif text-2xl font-bold text-sidebar-foreground">
             Sanaa Thrumylens
           </h1>
-          <p className="mt-1 text-sm text-sidebar-foreground/60">Editor sign in</p>
+          <p className="mt-1 text-sm text-sidebar-foreground/60">Admin sign in</p>
         </div>
         <LoginForm />
       </div>

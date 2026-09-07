@@ -59,7 +59,7 @@ export default async function CmsDashboardPage() {
         <div>
           <h1 className="font-serif text-3xl font-bold">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Welcome back, editor. Here&apos;s what&apos;s happening with Sanaa Thrumylens.
+            Welcome back, admin. Here&apos;s what&apos;s happening with Sanaa Thrumylens.
           </p>
         </div>
         <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
