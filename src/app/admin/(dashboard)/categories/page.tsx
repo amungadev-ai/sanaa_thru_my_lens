@@ -6,7 +6,7 @@ import { CategoryManager } from "./CategoryManager";
 
 export const runtime = "nodejs";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export default async function CmsCategoriesPage() {
   const [categories, counts] = await Promise.all([

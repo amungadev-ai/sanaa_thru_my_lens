@@ -4,7 +4,7 @@ import { SettingsForm } from "./SettingsForm";
 
 export const runtime = "nodejs";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export default async function CmsSettingsPage() {
   const settings = await getCachedSiteSettings().catch(() => null);

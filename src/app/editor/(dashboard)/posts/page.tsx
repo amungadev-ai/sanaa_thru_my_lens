@@ -9,7 +9,7 @@ import { EditorPostsTable } from "./EditorPostsTable";
 
 export const runtime = "nodejs";
 
-export const revalidate = 30;
+export const revalidate = 300;
 
 export default async function EditorPostsPage() {
   const editor = await getCurrentEditor();

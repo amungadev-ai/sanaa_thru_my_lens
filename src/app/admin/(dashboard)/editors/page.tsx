@@ -9,7 +9,7 @@ import { EditorsTable } from "./EditorsTable";
 
 export const runtime = "nodejs";
 
-export const revalidate = 30;
+export const revalidate = 300;
 
 export default async function CmsEditorsPage() {
   const [editors, stats] = await Promise.all([

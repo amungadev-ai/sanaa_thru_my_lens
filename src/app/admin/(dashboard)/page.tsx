@@ -14,7 +14,7 @@ import { formatDateSafe } from "@/lib/date-utils";
 
 export const runtime = "nodejs";
 
-export const revalidate = 30;
+export const revalidate = 300;
 
 export default async function CmsDashboardPage() {
   // All queries use cross-instance cache with graceful fallback

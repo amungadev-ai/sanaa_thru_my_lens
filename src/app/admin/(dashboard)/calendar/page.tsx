@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export const runtime = "nodejs";
 
-export const revalidate = 15;
+export const revalidate = 300;
 
 interface PageProps {
   searchParams: Promise<{ view?: string; month?: string }>;

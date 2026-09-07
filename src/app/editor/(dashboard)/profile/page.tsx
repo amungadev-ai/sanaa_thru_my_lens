@@ -3,7 +3,7 @@ import { ProfileForm } from "./ProfileForm";
 
 export const runtime = "nodejs";
 
-export const revalidate = 30;
+export const revalidate = 300;
 
 export const metadata = {
   title: "My Profile",

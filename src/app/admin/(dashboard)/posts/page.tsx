@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PostsTable } from "./PostsTable";
 
-export const revalidate = 15;
+export const revalidate = 300;
 
 import { formatDateSafe } from "@/lib/date-utils";
 

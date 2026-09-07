@@ -118,7 +118,7 @@ export const getCachedPostStats = unstable_cache(
     return { total, published, draft, totalViews: totalViews._sum.views ?? 0, featuredCount };
   },
   ["post-stats"],
-  { revalidate: 30, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedRecentPosts = unstable_cache(
@@ -143,7 +143,7 @@ export const getCachedRecentPosts = unstable_cache(
     );
   },
   ["recent-posts"],
-  { revalidate: 15, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedAllPosts = unstable_cache(
@@ -162,7 +162,7 @@ export const getCachedAllPosts = unstable_cache(
     );
   },
   ["all-posts-admin"],
-  { revalidate: 15, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedCategoryStats = unstable_cache(
@@ -179,7 +179,7 @@ export const getCachedCategoryStats = unstable_cache(
     );
   },
   ["category-stats"],
-  { revalidate: 30, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedAllSubscribers = unstable_cache(
@@ -198,7 +198,7 @@ export const getCachedAllSubscribers = unstable_cache(
     );
   },
   ["all-subscribers-admin"],
-  { revalidate: 30, tags: ["subscribers"] }
+  { revalidate: 300, tags: ["subscribers"] }
 );
 
 export const getCachedSubscriberStats = unstable_cache(
@@ -213,7 +213,7 @@ export const getCachedSubscriberStats = unstable_cache(
     );
   },
   ["subscriber-stats"],
-  { revalidate: 30, tags: ["subscribers"] }
+  { revalidate: 300, tags: ["subscribers"] }
 );
 
 export const getCachedAllEditors = unstable_cache(
@@ -228,7 +228,7 @@ export const getCachedAllEditors = unstable_cache(
     );
   },
   ["all-editors"],
-  { revalidate: 30, tags: ["editors"] }
+  { revalidate: 300, tags: ["editors"] }
 );
 
 export const getCachedEditorStats = unstable_cache(
@@ -243,7 +243,7 @@ export const getCachedEditorStats = unstable_cache(
     );
   },
   ["editor-stats"],
-  { revalidate: 30, tags: ["editors"] }
+  { revalidate: 300, tags: ["editors"] }
 );
 
 export const getCachedAllCategories = unstable_cache(
@@ -253,7 +253,7 @@ export const getCachedAllCategories = unstable_cache(
     return withRetry(() => db.category.findMany({ orderBy: { name: "asc" } }));
   },
   ["all-categories-admin"],
-  { revalidate: 60, tags: ["categories"] }
+  { revalidate: 600, tags: ["categories"] }
 );
 
 export const getCachedCategoryCounts = unstable_cache(
@@ -268,7 +268,7 @@ export const getCachedCategoryCounts = unstable_cache(
     );
   },
   ["category-counts-admin"],
-  { revalidate: 60, tags: ["posts"] }
+  { revalidate: 600, tags: ["posts"] }
 );
 
 export const getCachedSiteSettings = unstable_cache(
@@ -278,7 +278,7 @@ export const getCachedSiteSettings = unstable_cache(
     return withRetry(() => db.siteSettings.findUnique({ where: { id: "default" } }));
   },
   ["site-settings"],
-  { revalidate: 60, tags: ["settings"] }
+  { revalidate: 600, tags: ["settings"] }
 );
 
 export const getCachedAdminUser = unstable_cache(
@@ -288,7 +288,7 @@ export const getCachedAdminUser = unstable_cache(
     return withRetry(() => db.adminUser.findFirst());
   },
   ["admin-user"],
-  { revalidate: 60, tags: ["settings"] }
+  { revalidate: 600, tags: ["settings"] }
 );
 
 // ─── Calendar queries ─────────────────────────────────────────────────
@@ -323,7 +323,7 @@ export const getCachedCalendarPosts = unstable_cache(
     );
   },
   ["calendar-posts"],
-  { revalidate: 15, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedEditorCalendarPosts = unstable_cache(
@@ -357,7 +357,7 @@ export const getCachedEditorCalendarPosts = unstable_cache(
     );
   },
   ["editor-calendar-posts"],
-  { revalidate: 15, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedAllEditorsForAssignment = unstable_cache(
@@ -373,7 +373,7 @@ export const getCachedAllEditorsForAssignment = unstable_cache(
     );
   },
   ["editors-for-assignment"],
-  { revalidate: 30, tags: ["editors"] }
+  { revalidate: 300, tags: ["editors"] }
 );
 
 // ─── Comment queries ───────────────────────────────────────────────────
@@ -397,7 +397,7 @@ export const getCachedCommentsForModeration = unstable_cache(
     );
   },
   ["comments-moderation"],
-  { revalidate: 15, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedEditorComments = unstable_cache(
@@ -427,5 +427,5 @@ export const getCachedEditorComments = unstable_cache(
     });
   },
   ["editor-comments-moderation"],
-  { revalidate: 15, tags: ["posts"] }
+  { revalidate: 300, tags: ["posts"] }
 );

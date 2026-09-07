@@ -8,7 +8,7 @@ import { SubscribersTable } from "./SubscribersTable";
 
 export const runtime = "nodejs";
 
-export const revalidate = 30;
+export const revalidate = 300;
 
 export default async function CmsSubscribersPage({
   searchParams,
