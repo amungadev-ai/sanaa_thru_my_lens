@@ -5,6 +5,8 @@ import { SiteHeader } from "@/components/blog/SiteHeader";
 import { SiteFooter } from "@/components/blog/SiteFooter";
 import { SetupPasswordForm } from "./SetupPasswordForm";
 
+export const runtime = "nodejs";
+
 interface PageProps {
   params: Promise<{ token: string }>;
 }

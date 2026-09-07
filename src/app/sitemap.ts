@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 
+export const runtime = "nodejs";
+
 export const revalidate = 3600; // Cache for 1 hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

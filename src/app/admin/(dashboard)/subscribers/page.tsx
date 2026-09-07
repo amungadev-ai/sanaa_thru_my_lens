@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Users, Mail, UserCheck, UserX } from "lucide-react";
 import { SubscribersTable } from "./SubscribersTable";
 
+export const runtime = "nodejs";
+
 export const revalidate = 30;
 
 export default async function CmsSubscribersPage({

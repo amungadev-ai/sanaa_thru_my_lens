@@ -55,6 +55,8 @@ export async function generateMetadata({ params }: PageProps) {
 
 import { formatDateLongSafe } from "@/lib/date-utils";
 
+export const runtime = "nodejs";
+
 export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);

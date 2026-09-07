@@ -4,6 +4,8 @@ import { getCategories } from "@/lib/posts";
 import { getCurrentEditor } from "@/lib/editor-auth";
 import { PostEditor } from "@/components/cms/PostEditor";
 
+export const runtime = "nodejs";
+
 export const revalidate = 10;
 
 interface PageProps {

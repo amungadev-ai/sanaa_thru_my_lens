@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getCurrentEditor } from "@/lib/editor-auth";
 import { EditorShell } from "@/components/editor/EditorShell";
 
+export const runtime = "nodejs";
+
 
 export default async function EditorLayout({ children }: { children: React.ReactNode }) {
   const editor = await getCurrentEditor();

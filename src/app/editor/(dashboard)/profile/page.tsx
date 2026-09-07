@@ -1,6 +1,8 @@
 import { getCurrentEditor } from "@/lib/editor-auth";
 import { ProfileForm } from "./ProfileForm";
 
+export const runtime = "nodejs";
+
 export const revalidate = 30;
 
 export const metadata = {

@@ -4,6 +4,8 @@ import { EditorCalendarGrid } from "./EditorCalendarGrid";
 import { CalendarList } from "@/components/calendar/CalendarList";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 
+export const runtime = "nodejs";
+
 export const revalidate = 15;
 
 interface PageProps {

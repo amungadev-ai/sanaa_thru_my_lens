@@ -2,6 +2,8 @@ import { getCachedSiteSettings, getCachedAdminUser } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "./SettingsForm";
 
+export const runtime = "nodejs";
+
 export const revalidate = 60;
 
 export default async function CmsSettingsPage() {

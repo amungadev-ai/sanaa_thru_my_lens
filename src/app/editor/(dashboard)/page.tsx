@@ -11,6 +11,8 @@ export const revalidate = 30;
 
 import { formatDateSafe } from "@/lib/date-utils";
 
+export const runtime = "nodejs";
+
 export default async function EditorDashboardPage() {
   const editor = await getCurrentEditor();
   if (!editor) return null;

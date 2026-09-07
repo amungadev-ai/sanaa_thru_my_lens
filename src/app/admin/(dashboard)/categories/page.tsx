@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CategoryManager } from "./CategoryManager";
 
+export const runtime = "nodejs";
+
 export const revalidate = 60;
 
 export default async function CmsCategoriesPage() {

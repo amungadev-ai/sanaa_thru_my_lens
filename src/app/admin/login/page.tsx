@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
 
+export const runtime = "nodejs";
+
 export const metadata = {
   title: "Editor Login",
 };

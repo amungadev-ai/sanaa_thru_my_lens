@@ -13,6 +13,8 @@ import type { PublicPost } from "@/lib/posts";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
 
+export const runtime = "nodejs";
+
 // ISR cache — most visitors get a fully cached page (zero DB queries)
 export const revalidate = 300;
 

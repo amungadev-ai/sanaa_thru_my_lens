@@ -12,6 +12,8 @@ import { Card } from "@/components/ui/card";
 
 import { formatDateSafe } from "@/lib/date-utils";
 
+export const runtime = "nodejs";
+
 export const revalidate = 30;
 
 export default async function CmsDashboardPage() {

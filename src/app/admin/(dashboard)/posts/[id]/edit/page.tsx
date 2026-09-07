@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { getCategories } from "@/lib/posts";
 import { PostEditor } from "@/components/cms/PostEditor";
 
+export const runtime = "nodejs";
+
 export const revalidate = 10;
 
 interface PageProps {

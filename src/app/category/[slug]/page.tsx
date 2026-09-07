@@ -5,6 +5,8 @@ import { ArticleCard } from "@/components/blog/ArticleCard";
 import { getPublishedPosts, getCategoryBySlug } from "@/lib/posts";
 import type { Metadata } from "next";
 
+export const runtime = "nodejs";
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

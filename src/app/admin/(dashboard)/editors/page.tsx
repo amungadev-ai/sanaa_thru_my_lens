@@ -7,6 +7,8 @@ import { Users, Mail, UserCheck, UserX, Clock } from "lucide-react";
 import { InviteEditorDialog } from "./InviteEditorDialog";
 import { EditorsTable } from "./EditorsTable";
 
+export const runtime = "nodejs";
+
 export const revalidate = 30;
 
 export default async function CmsEditorsPage() {

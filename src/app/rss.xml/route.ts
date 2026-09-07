@@ -1,5 +1,7 @@
 import { db } from "@/lib/db";
 
+export const runtime = "nodejs";
+
 export const revalidate = 1800; // Cache for 30 minutes
 
 function escapeXml(text: string): string {

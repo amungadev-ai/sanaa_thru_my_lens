@@ -9,6 +9,8 @@ export const revalidate = 15;
 
 import { formatDateSafe } from "@/lib/date-utils";
 
+export const runtime = "nodejs";
+
 export default async function CmsPostsPage({
   searchParams,
 }: {

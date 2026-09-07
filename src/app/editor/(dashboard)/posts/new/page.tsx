@@ -2,6 +2,8 @@ import { PostEditor } from "@/components/cms/PostEditor";
 import { getCategories } from "@/lib/posts";
 import { getCurrentEditor } from "@/lib/editor-auth";
 
+export const runtime = "nodejs";
+
 export const revalidate = 10;
 
 export default async function EditorNewPostPage() {

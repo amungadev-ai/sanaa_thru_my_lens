@@ -2,6 +2,8 @@ import { getCachedCommentsForModeration } from "@/lib/data-cache";
 import { Card } from "@/components/ui/card";
 import { CommentsModerationTable } from "./CommentsModerationTable";
 
+export const runtime = "nodejs";
+
 export const revalidate = 15;
 
 interface PageProps {

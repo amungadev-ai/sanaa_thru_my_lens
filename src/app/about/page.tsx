@@ -4,6 +4,8 @@ import { getCategories } from "@/lib/posts";
 import { db } from "@/lib/db";
 import type { Metadata } from "next";
 
+export const runtime = "nodejs";
+
 export const metadata: Metadata = {
   title: "About",
   description:
