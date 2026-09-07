@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
 import { getCurrentEditor } from "@/lib/editor-auth";
-import { db } from "@/lib/db";
+import { db, withRetry } from "@/lib/db";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const CDN_URL = process.env.CDN_URL ?? "https://cdn.sanaathrumylens.co.ke";
 const CDN_API_KEY = process.env.CDN_API_KEY ?? "";
@@ -67,12 +70,16 @@ export async function GET(req: NextRequest) {
           try {
             // Search posts where coverImage matches OR content contains the URL
             const [coverMatch, contentMatch] = await Promise.all([
-              db.post.count({
-                where: { coverImage: { contains: img.url } },
-              }),
-              db.post.count({
-                where: { content: { contains: img.url } },
-              }),
+              withRetry(() =>
+                db.post.count({
+                  where: { coverImage: { contains: img.url } },
+                })
+              ),
+              withRetry(() =>
+                db.post.count({
+                  where: { content: { contains: img.url } },
+                })
+              ),
             ]);
             const usedInCount = coverMatch + contentMatch;
             return { ...img, usedIn: usedInCount };
