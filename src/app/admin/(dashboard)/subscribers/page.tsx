@@ -1,6 +1,7 @@
 import { toISOStringSafe } from "@/lib/date-utils";
 import Link from "next/link";
 import { getCachedAllSubscribers, getCachedSubscriberStats } from "@/lib/data-cache";
+import { db } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Users, Mail, UserCheck, UserX } from "lucide-react";
 import { SubscribersTable } from "./SubscribersTable";
@@ -18,9 +19,14 @@ export default async function CmsSubscribersPage({
   const q = sp.q?.trim() ?? "";
   const status = sp.status?.trim() ?? "ACTIVE";
 
-  const [subscribers, stats] = await Promise.all([
+  const [subscribers, stats, thisMonthCount] = await Promise.all([
     getCachedAllSubscribers(status, q).catch(() => []),
     getCachedSubscriberStats().catch(() => []),
+    db.subscriber.count({
+      where: {
+        createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+      },
+    }).catch(() => 0),
   ]);
 
   const statMap = new Map<string, number>();
@@ -48,11 +54,7 @@ export default async function CmsSubscribersPage({
     },
     {
       label: "This Month",
-      value: await db.subscriber.count({
-        where: {
-          createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
-        },
-      }),
+      value: thisMonthCount,
       sub: "New signups",
       icon: Mail,
     },
