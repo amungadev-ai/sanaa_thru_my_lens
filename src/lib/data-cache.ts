@@ -1,22 +1,33 @@
 import { unstable_cache } from "next/cache";
-import { db, withRetry } from "./db";
 
 /**
  * Data cache layer using Next.js unstable_cache.
  *
- * Unlike in-memory caching (which is per-serverless-instance), unstable_cache
- * uses Vercel's Data Cache — shared across ALL function instances.
- *
- * This means: even if Vercel spins up 50 serverless functions simultaneously,
- * only ONE of them queries MySQL. The other 49 get the cached result.
+ * IMPORTANT: db is imported INSIDE each cached function, not at module level.
+ * On Vercel serverless, unstable_cache revalidation may run in a context where
+ * module-level imports aren't available. Dynamic import ensures db is always
+ * in scope when the function executes.
  *
  * Cache tags allow manual invalidation when data changes (via revalidateTag).
  */
+
+// Helper to get db inside cached functions (avoids "db is not defined" on Vercel)
+async function getDb() {
+  const { db } = await import("./db");
+  return db;
+}
+
+async function getWithRetry() {
+  const { withRetry } = await import("./db");
+  return withRetry;
+}
 
 // ─── Public blog data ──────────────────────────────────────────────────
 
 export const getCachedPublishedPosts = unstable_cache(
   async (limit: number, category?: string) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.findMany({
         where: {
@@ -29,11 +40,13 @@ export const getCachedPublishedPosts = unstable_cache(
     );
   },
   ["published-posts"],
-  { revalidate: 300, tags: ["posts"] } // 5 minutes + manual bust
+  { revalidate: 300, tags: ["posts"] }
 );
 
 export const getCachedFeaturedPost = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.findFirst({
         where: { status: "PUBLISHED", featured: true },
@@ -47,22 +60,28 @@ export const getCachedFeaturedPost = unstable_cache(
 
 export const getCachedCategories = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() => db.category.findMany({ orderBy: { name: "asc" } }));
   },
   ["categories"],
-  { revalidate: 600, tags: ["categories"] } // 10 minutes
+  { revalidate: 600, tags: ["categories"] }
 );
 
 export const getCachedSubscriberCount = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() => db.subscriber.count({ where: { status: "ACTIVE" } }));
   },
   ["subscriber-count"],
-  { revalidate: 300, tags: ["subscribers"] } // 5 minutes
+  { revalidate: 300, tags: ["subscribers"] }
 );
 
 export const getCachedPostBySlug = unstable_cache(
   async (slug: string) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() => db.post.findUnique({ where: { slug } }));
   },
   ["post-by-slug"],
@@ -71,6 +90,8 @@ export const getCachedPostBySlug = unstable_cache(
 
 export const getCachedCategoryBySlug = unstable_cache(
   async (slug: string) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() => db.category.findUnique({ where: { slug } }));
   },
   ["category-by-slug"],
@@ -79,6 +100,8 @@ export const getCachedCategoryBySlug = unstable_cache(
 
 export const getCachedPostCountsByCategory = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.groupBy({
         by: ["category"],
@@ -95,6 +118,8 @@ export const getCachedPostCountsByCategory = unstable_cache(
 
 export const getCachedPostStats = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     const [total, published, draft, totalViews, featuredCount] = await Promise.all([
       withRetry(() => db.post.count()),
       withRetry(() => db.post.count({ where: { status: "PUBLISHED" } })),
@@ -105,11 +130,13 @@ export const getCachedPostStats = unstable_cache(
     return { total, published, draft, totalViews: totalViews._sum.views ?? 0, featuredCount };
   },
   ["post-stats"],
-  { revalidate: 30, tags: ["posts"] } // 30 seconds for admin
+  { revalidate: 30, tags: ["posts"] }
 );
 
 export const getCachedRecentPosts = unstable_cache(
   async (limit: number) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.findMany({
         orderBy: { createdAt: "desc" },
@@ -128,11 +155,13 @@ export const getCachedRecentPosts = unstable_cache(
     );
   },
   ["recent-posts"],
-  { revalidate: 15, tags: ["posts"] } // 15 seconds for admin
+  { revalidate: 15, tags: ["posts"] }
 );
 
 export const getCachedAllPosts = unstable_cache(
   async (q: string, status: string) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.findMany({
         where: {
@@ -150,6 +179,8 @@ export const getCachedAllPosts = unstable_cache(
 
 export const getCachedCategoryStats = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.groupBy({
         by: ["category"],
@@ -165,6 +196,8 @@ export const getCachedCategoryStats = unstable_cache(
 
 export const getCachedAllSubscribers = unstable_cache(
   async (status: string, q: string) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.subscriber.findMany({
         where: {
@@ -182,6 +215,8 @@ export const getCachedAllSubscribers = unstable_cache(
 
 export const getCachedSubscriberStats = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.subscriber.groupBy({
         by: ["status"],
@@ -195,6 +230,8 @@ export const getCachedSubscriberStats = unstable_cache(
 
 export const getCachedAllEditors = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.editor.findMany({
         orderBy: { createdAt: "desc" },
@@ -208,6 +245,8 @@ export const getCachedAllEditors = unstable_cache(
 
 export const getCachedEditorStats = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.editor.groupBy({
         by: ["status"],
@@ -221,6 +260,8 @@ export const getCachedEditorStats = unstable_cache(
 
 export const getCachedAllCategories = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() => db.category.findMany({ orderBy: { name: "asc" } }));
   },
   ["all-categories-admin"],
@@ -229,6 +270,8 @@ export const getCachedAllCategories = unstable_cache(
 
 export const getCachedCategoryCounts = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.groupBy({
         by: ["category"],
@@ -242,6 +285,8 @@ export const getCachedCategoryCounts = unstable_cache(
 
 export const getCachedSiteSettings = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() => db.siteSettings.findUnique({ where: { id: "default" } }));
   },
   ["site-settings"],
@@ -250,6 +295,8 @@ export const getCachedSiteSettings = unstable_cache(
 
 export const getCachedAdminUser = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() => db.adminUser.findFirst());
   },
   ["admin-user"],
@@ -260,15 +307,14 @@ export const getCachedAdminUser = unstable_cache(
 
 export const getCachedCalendarPosts = unstable_cache(
   async (monthStart: string, monthEnd: string) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.findMany({
         where: {
           OR: [
-            // Any post with a scheduledAt in this month (any status)
             { scheduledAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
-            // Published posts by createdAt
             { status: "PUBLISHED", createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
-            // Any non-published post created this month (Idea, Drafting, In Review, Scheduled, Archived)
             { status: { not: "PUBLISHED" }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
           ],
         },
@@ -294,16 +340,15 @@ export const getCachedCalendarPosts = unstable_cache(
 
 export const getCachedEditorCalendarPosts = unstable_cache(
   async (editorId: string, monthStart: string, monthEnd: string) => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.post.findMany({
         where: {
           authorId: editorId,
           OR: [
-            // Any post with a scheduledAt in this month (any status)
             { scheduledAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
-            // Published posts by createdAt
             { status: "PUBLISHED", createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
-            // Any non-published post created this month (Idea, Drafting, In Review, Scheduled, Archived)
             { status: { not: "PUBLISHED" }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
           ],
         },
@@ -329,6 +374,8 @@ export const getCachedEditorCalendarPosts = unstable_cache(
 
 export const getCachedAllEditorsForAssignment = unstable_cache(
   async () => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.editor.findMany({
         where: { status: "ACTIVE" },
@@ -345,6 +392,8 @@ export const getCachedAllEditorsForAssignment = unstable_cache(
 
 export const getCachedCommentsForModeration = unstable_cache(
   async (filter: "pending" | "approved" | "all") => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(() =>
       db.comment.findMany({
         where: filter === "all" ? {} : { approved: filter === "approved" },
@@ -360,13 +409,14 @@ export const getCachedCommentsForModeration = unstable_cache(
     );
   },
   ["comments-moderation"],
-  { revalidate: 15, tags: ["posts"] } // comments change with posts
+  { revalidate: 15, tags: ["posts"] }
 );
 
 export const getCachedEditorComments = unstable_cache(
   async (editorId: string, filter: "pending" | "approved" | "all") => {
+    const { withRetry } = await getWithRetry();
+    const db = await getDb();
     return withRetry(async () => {
-      // Find posts owned by this editor
       const postIds = await db.post.findMany({
         where: { authorId: editorId },
         select: { id: true },
