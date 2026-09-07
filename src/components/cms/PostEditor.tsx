@@ -31,8 +31,10 @@ import {
   Image as ImageIcon,
   Wand2,
   Upload,
+  FolderOpen,
   ArrowLeft,
 } from "lucide-react";
+import { MediaPicker } from "@/components/media/MediaPicker";
 import Link from "next/link";
 
 export interface PostEditorData {
@@ -140,6 +142,8 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingContent, setUploadingContent] = useState(false);
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [showContentPicker, setShowContentPicker] = useState(false);
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const contentFileInputRef = useRef<HTMLInputElement>(null);
@@ -412,6 +416,12 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
                 >
                   {uploadingContent ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 </EditorButton>
+                <EditorButton
+                  title="Browse media library"
+                  onClick={() => setShowContentPicker(true)}
+                >
+                  <FolderOpen className="h-4 w-4" />
+                </EditorButton>
                 <EditorButton title="Image (manual URL)" onClick={() => insertTag('<img src="" alt="', '" />')}>
                   <ImageIcon className="h-4 w-4" />
                 </EditorButton>
@@ -598,6 +608,12 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
                 >
                   {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />} Upload
                 </button>
+                <button
+                  onClick={() => setShowCoverPicker(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                >
+                  <FolderOpen className="h-3 w-3" /> Browse
+                </button>
                 <input
                   ref={coverFileInputRef}
                   type="file"
@@ -621,6 +637,27 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
           </Card>
         </aside>
       </div>
+
+      {/* Media pickers */}
+      <MediaPicker
+        open={showCoverPicker}
+        onClose={() => setShowCoverPicker(false)}
+        onSelect={(url) => {
+          update("coverImage", url);
+          toast.success("Cover image selected");
+        }}
+        title="Select cover image"
+      />
+      <MediaPicker
+        open={showContentPicker}
+        onClose={() => setShowContentPicker(false)}
+        onSelect={(url) => {
+          const alt = "image";
+          insertTag(`<img src="${url}" alt="${alt}" />`);
+          toast.success("Image inserted");
+        }}
+        title="Select image to insert"
+      />
     </div>
   );
 }
