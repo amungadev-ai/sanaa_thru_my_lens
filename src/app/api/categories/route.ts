@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isAuthenticated } from "@/lib/auth";
+import { bustCategoriesCache } from "@/lib/cache-bust";
 
 function slugify(text: string): string {
   return text
@@ -33,6 +34,10 @@ export async function POST(req: NextRequest) {
     const category = await db.category.create({
       data: { name, slug, description },
     });
+
+    // Bust the cache so the new category appears immediately
+    bustCategoriesCache();
+
     return NextResponse.json({ ok: true, category }, { status: 201 });
   } catch (e) {
     console.error("POST /api/categories error:", e);

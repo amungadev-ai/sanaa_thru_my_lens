@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isAuthenticated } from "@/lib/auth";
+import { bustSettingsCache } from "@/lib/cache-bust";
 
 export async function PUT(req: NextRequest) {
   const authed = await isAuthenticated();
@@ -26,6 +27,10 @@ export async function PUT(req: NextRequest) {
       update: data,
       create: { id: "default", ...data },
     });
+
+    // Bust the cache so updated settings appear immediately
+    bustSettingsCache();
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("PUT /api/settings error:", e);
