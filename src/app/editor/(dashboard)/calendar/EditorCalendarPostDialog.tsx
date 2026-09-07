@@ -85,12 +85,14 @@ export function EditorCalendarPostDialog({ post, date, onClose }: EditorCalendar
             calendarNote: calendarNote.trim() || null,
           }),
         });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const data = await res.json();
-          toast.error(data.error ?? "Failed to update");
+          toast.error(data.error ?? `Failed to update (HTTP ${res.status})`);
           return;
         }
         toast.success("Post updated");
+        router.refresh();
+        setOpen(false);
       } else {
         // Quick-add via editor API
         const res = await fetch("/api/editor/posts", {
@@ -105,9 +107,9 @@ export function EditorCalendarPostDialog({ post, date, onClose }: EditorCalendar
             content: "",
           }),
         });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const data = await res.json();
-          toast.error(data.error ?? "Failed to create");
+          toast.error(data.error ?? `Failed to create (HTTP ${res.status})`);
           return;
         }
         toast.success("Post created");

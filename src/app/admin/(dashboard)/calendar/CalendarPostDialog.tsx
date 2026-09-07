@@ -97,12 +97,14 @@ export function CalendarPostDialog({ post, date, editors, onClose }: CalendarPos
             calendarNote: calendarNote.trim() || null,
           }),
         });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const data = await res.json();
-          toast.error(data.error ?? "Failed to update");
+          toast.error(data.error ?? `Failed to update (HTTP ${res.status})`);
           return;
         }
         toast.success("Post updated");
+        router.refresh();
+        setOpen(false);
       } else {
         // Quick-add: create new post as an Idea
         const res = await fetch("/api/posts/quick-add", {
@@ -116,9 +118,9 @@ export function CalendarPostDialog({ post, date, editors, onClose }: CalendarPos
             calendarNote: calendarNote.trim() || null,
           }),
         });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const data = await res.json();
-          toast.error(data.error ?? "Failed to create");
+          toast.error(data.error ?? `Failed to create (HTTP ${res.status})`);
           return;
         }
         toast.success("Post created");

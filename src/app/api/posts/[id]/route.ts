@@ -79,7 +79,6 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     if (body.category !== undefined) data.category = body.category || null;
     if (body.tags !== undefined) data.tags = String(body.tags);
     if (body.author !== undefined) data.author = String(body.author);
-    if (body.authorId !== undefined) data.authorId = body.authorId || null;
     if (body.coverImage !== undefined) data.coverImage = body.coverImage || null;
     if (body.status !== undefined) {
       // Accept all 6 statuses
@@ -95,6 +94,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     // If authorId changed, update the author name too
     if (body.authorId !== undefined) {
       const newAuthorId = body.authorId || null;
+      data.authorId = newAuthorId;
       if (newAuthorId) {
         const editor = await db.editor.findUnique({ where: { id: newAuthorId } });
         if (editor) data.author = editor.name ?? editor.email.split("@")[0];
