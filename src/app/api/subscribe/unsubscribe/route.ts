@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 
 /**
  * Unsubscribe endpoint — called from the unsubscribe link in emails.
  * Accepts either POST (JSON body with email) or GET (?email=...).
  */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));

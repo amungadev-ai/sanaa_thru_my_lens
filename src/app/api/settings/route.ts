@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { isAuthenticated } from "@/lib/auth";
+
 import { bustSettingsCache } from "@/lib/cache-bust";
+
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function PUT(req: NextRequest) {
   const authed = await isAuthenticated();

@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { getCurrentEditor } from "@/lib/editor-auth";
 
+
 /** PUT — update the current editor's profile (name, bio, avatar) */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function PUT(req: NextRequest) {
   const editor = await getCurrentEditor();
   if (!editor) {

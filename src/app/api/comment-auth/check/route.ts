@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
+
 import { getCurrentCommenter } from "@/lib/commenter-auth";
 
+
 /** GET — returns whether the current visitor is logged in to comment */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const commenter = await getCurrentCommenter();
   if (!commenter) {

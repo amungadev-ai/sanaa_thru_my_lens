@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { getCurrentCommenter } from "@/lib/commenter-auth";
+
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 /** POST to upvote a comment (toggle — clicking again removes the vote) */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(_req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const commenter = await getCurrentCommenter();

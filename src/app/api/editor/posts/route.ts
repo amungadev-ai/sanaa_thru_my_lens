@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { getCurrentEditor } from "@/lib/editor-auth";
+
 import { notifySubscribersOfNewPost } from "@/lib/notify-subscribers";
+
 import { bustPostsCache } from "@/lib/cache-bust";
+
 
 function slugify(text: string): string {
   return text
@@ -20,6 +25,9 @@ function estimateReadingTime(html: string): number {
 }
 
 /** GET — list the current editor's posts */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const editor = await getCurrentEditor();
   if (!editor) {

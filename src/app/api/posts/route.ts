@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { isAuthenticated } from "@/lib/auth";
+
 import { notifySubscribersOfNewPost } from "@/lib/notify-subscribers";
+
 import { bustPostsCache } from "@/lib/cache-bust";
+
 
 function slugify(text: string): string {
   return text
@@ -18,6 +23,9 @@ function estimateReadingTime(html: string): number {
   const words = text.split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
 }
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   // Auth-required: list all posts including drafts

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { getCurrentEditor } from "@/lib/editor-auth";
+
 import { notifySubscribersOfNewPost } from "@/lib/notify-subscribers";
+
 
 function slugify(text: string): string {
   return text
@@ -23,6 +27,9 @@ interface RouteContext {
 }
 
 /** GET — fetch a single post owned by the current editor */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET(_req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const editor = await getCurrentEditor();

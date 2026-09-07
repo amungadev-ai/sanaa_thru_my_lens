@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { isAuthenticated } from "@/lib/auth";
+
 import { bustPostsCache } from "@/lib/cache-bust";
+
 
 function slugify(text: string): string {
   return text
@@ -16,6 +20,9 @@ function slugify(text: string): string {
  * Quick-add: create a new post as an Idea/Draft from the calendar.
  * Only requires a title. Other fields optional.
  */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const authed = await isAuthenticated();
   if (!authed) {

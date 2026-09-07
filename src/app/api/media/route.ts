@@ -3,8 +3,6 @@ import { isAuthenticated } from "@/lib/auth";
 import { getCurrentEditor } from "@/lib/editor-auth";
 import { db, withRetry } from "@/lib/db";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 const CDN_URL = process.env.CDN_URL ?? "https://cdn.sanaathrumylens.co.ke";
 const CDN_API_KEY = process.env.CDN_API_KEY ?? "";
@@ -15,6 +13,9 @@ const CDN_API_KEY = process.env.CDN_API_KEY ?? "";
  *
  * Query params: page, per_page, q (search by filename)
  */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   // Auth: admin OR editor
   const isAdmin = await isAuthenticated();

@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { getCurrentCommenter } from "@/lib/commenter-auth";
+
 import { bustPostsCache } from "@/lib/cache-bust";
+
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 /** DELETE a comment (by the author, within edit window, or by admin/editor) */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const commenter = await getCurrentCommenter();

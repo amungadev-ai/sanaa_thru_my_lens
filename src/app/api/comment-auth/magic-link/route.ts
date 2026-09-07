@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { createMagicLink, findCommenterByEmail } from "@/lib/commenter-auth";
+
 import { sendEmail } from "@/lib/email";
 
+
 const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {

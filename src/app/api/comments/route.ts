@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { getCurrentCommenter } from "@/lib/commenter-auth";
+
 import { sendEmail } from "@/lib/email";
+
 import { bustPostsCache } from "@/lib/cache-bust";
+
 
 const MIN_COMMENT_LENGTH = 5;
 const MAX_COMMENT_LENGTH = 2000;
@@ -16,6 +21,9 @@ function sanitizeContent(text: string): string {
 function hasLinks(text: string): boolean {
   return /https?:\/\//i.test(text) || /www\./i.test(text);
 }
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

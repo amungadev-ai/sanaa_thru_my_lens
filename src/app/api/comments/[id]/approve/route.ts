@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/lib/db";
+
 import { isAuthenticated } from "@/lib/auth";
+
 import { getCurrentEditor } from "@/lib/editor-auth";
+
 import { bustPostsCache } from "@/lib/cache-bust";
+
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 /** POST to approve a comment (admin or post's editor) */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(_req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
 
