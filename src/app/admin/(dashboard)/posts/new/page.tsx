@@ -19,9 +19,11 @@ export default async function NewPostPage() {
         tags: "",
         author: "Sanaa Thrumylens",
         coverImage: "",
-        status: "DRAFT",
+        status: "DRAFTING",
         featured: false,
         readingTime: 1,
+        scheduledAt: null,
+        calendarNote: null,
       }}
     />
   );

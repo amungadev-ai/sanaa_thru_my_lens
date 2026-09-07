@@ -264,12 +264,12 @@ export const getCachedCalendarPosts = unstable_cache(
       db.post.findMany({
         where: {
           OR: [
-            // Posts scheduled in this month
+            // Any post with a scheduledAt in this month (any status)
             { scheduledAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
-            // Posts published in this month
+            // Published posts by createdAt
             { status: "PUBLISHED", createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
-            // Ideas/drafts assigned in this month (by createdAt)
-            { status: { in: ["IDEA", "DRAFTING"] }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+            // Any non-published post created this month (Idea, Drafting, In Review, Scheduled, Archived)
+            { status: { not: "PUBLISHED" }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
           ],
         },
         orderBy: { scheduledAt: "asc" },
@@ -299,9 +299,12 @@ export const getCachedEditorCalendarPosts = unstable_cache(
         where: {
           authorId: editorId,
           OR: [
+            // Any post with a scheduledAt in this month (any status)
             { scheduledAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+            // Published posts by createdAt
             { status: "PUBLISHED", createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
-            { status: { in: ["IDEA", "DRAFTING"] }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
+            // Any non-published post created this month (Idea, Drafting, In Review, Scheduled, Archived)
+            { status: { not: "PUBLISHED" }, createdAt: { gte: new Date(monthStart), lte: new Date(monthEnd) } },
           ],
         },
         orderBy: { scheduledAt: "asc" },

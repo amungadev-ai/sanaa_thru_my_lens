@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Dialog,
@@ -50,6 +51,7 @@ const STATUSES = [
 ];
 
 export function EditorCalendarPostDialog({ post, date, onClose }: EditorCalendarPostDialogProps) {
+  const router = useRouter();
   const isEditing = !!post;
   const [open, setOpen] = useState(true);
   const [title, setTitle] = useState(post?.title ?? "");
@@ -110,6 +112,7 @@ export function EditorCalendarPostDialog({ post, date, onClose }: EditorCalendar
         }
         toast.success("Post created");
       }
+      router.refresh();
       setOpen(false);
     } catch {
       toast.error("Network error");

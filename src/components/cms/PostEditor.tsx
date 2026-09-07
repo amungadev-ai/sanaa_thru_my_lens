@@ -45,9 +45,11 @@ export interface PostEditorData {
   tags: string;
   author: string;
   coverImage: string;
-  status: "PUBLISHED" | "DRAFT";
+  status: "PUBLISHED" | "DRAFT" | "IDEA" | "DRAFTING" | "IN_REVIEW" | "SCHEDULED" | "ARCHIVED";
   featured: boolean;
   readingTime: number;
+  scheduledAt?: string | null;
+  calendarNote?: string | null;
 }
 
 interface Category {
@@ -470,17 +472,34 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
                 <Label className="text-xs text-muted-foreground">Status</Label>
                 <Select
                   value={data.status}
-                  onValueChange={(v) => update("status", v as "PUBLISHED" | "DRAFT")}
+                  onValueChange={(v) => update("status", v as "PUBLISHED" | "DRAFT" | "IDEA" | "DRAFTING" | "IN_REVIEW" | "SCHEDULED" | "ARCHIVED")}
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    <SelectItem value="IDEA">Idea</SelectItem>
+                    <SelectItem value="DRAFTING">Drafting</SelectItem>
+                    <SelectItem value="IN_REVIEW">In Review</SelectItem>
+                    <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                    <SelectItem value="DRAFT">Draft (legacy)</SelectItem>
                     <SelectItem value="PUBLISHED">Published</SelectItem>
+                    <SelectItem value="ARCHIVED">Archived</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              {/* Scheduled date picker (shown when status is SCHEDULED) */}
+              {data.status === "SCHEDULED" && (
+                <div>
+                  <Label className="text-xs text-muted-foreground">Scheduled date</Label>
+                  <input
+                    type="datetime-local"
+                    value={data.scheduledAt ?? ""}
+                    onChange={(e) => update("scheduledAt", e.target.value)}
+                    className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              )}
               <div className="flex items-center justify-between rounded-md border border-border p-3">
                 <div>
                   <Label className="text-sm font-medium">Featured</Label>

@@ -26,9 +26,11 @@ export default async function EditorNewPostPage() {
         tags: "",
         author: authorName,
         coverImage: "",
-        status: "DRAFT",
+        status: "DRAFTING",
         featured: false,
         readingTime: 1,
+        scheduledAt: null,
+        calendarNote: null,
       }}
     />
   );

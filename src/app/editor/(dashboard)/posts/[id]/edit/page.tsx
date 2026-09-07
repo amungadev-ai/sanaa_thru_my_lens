@@ -38,9 +38,11 @@ export default async function EditorEditPostPage({ params }: PageProps) {
         tags: post.tags,
         author: post.author,
         coverImage: post.coverImage ?? "",
-        status: post.status as "PUBLISHED" | "DRAFT",
+        status: post.status as "PUBLISHED" | "DRAFT" | "IDEA" | "DRAFTING" | "IN_REVIEW" | "SCHEDULED" | "ARCHIVED",
         featured: post.featured,
         readingTime: post.readingTime,
+        scheduledAt: post.scheduledAt ? new Date(post.scheduledAt).toISOString().slice(0, 16) : null,
+        calendarNote: post.calendarNote ?? null,
       }}
     />
   );
