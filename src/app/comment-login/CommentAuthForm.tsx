@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,6 @@ interface CommentAuthFormProps {
 }
 
 export function CommentAuthForm({ mode }: CommentAuthFormProps) {
-  const router = useRouter();
   const isRegister = mode === "register";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,9 +36,9 @@ export function CommentAuthForm({ mode }: CommentAuthFormProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password: password || undefined }),
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          toast.error(data.error ?? "Registration failed");
+          toast.error(data.error ?? `Registration failed (HTTP ${res.status})`);
           return;
         }
         setSent(true);
@@ -52,9 +50,9 @@ export function CommentAuthForm({ mode }: CommentAuthFormProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          toast.error(data.error ?? "Failed to send link");
+          toast.error(data.error ?? `Failed to send link (HTTP ${res.status})`);
           return;
         }
         setSent(true);
