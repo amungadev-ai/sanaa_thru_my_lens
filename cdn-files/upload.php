@@ -1,10 +1,14 @@
 <?php
 /**
- * Sanaa Thrumylens — CDN Upload Endpoint
+ * Sanaa Thrumylens — CDN Upload + Management Endpoint
  * Location: cdn.sanaathrumylens.co.ke/upload.php
  *
- * Accepts authenticated POST requests with image files,
- * stores them with unique names, and returns the public URL.
+ * Operations:
+ *   GET  (no params)     → health check
+ *   GET  ?list=true      → list all images (flat, newest first)
+ *   GET  ?list=true&q=x  → list images matching filename "x"
+ *   POST (multipart)     → upload a new image
+ *   DELETE ?path=YYYY/MM/file.jpg → delete an image
  *
  * Authentication: Bearer token via Authorization header or ?key= query param.
  * The API key is defined in config.php (see config.example.php).
@@ -35,7 +39,7 @@ define('ALLOWED_ORIGINS', $config['allowed_origins'] ?? [
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, ALLOWED_ORIGINS, true)) {
     header("Access-Control-Allow-Origin: {$origin}");
-    header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+    header('Access-Control-Allow-Methods: POST, GET, DELETE, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     header('Vary: Origin');
 }
@@ -58,13 +62,19 @@ function get_bearer_token(): string
     if (preg_match('/Bearer\s+(.+)/i', $auth, $m)) {
         return trim($m[1]);
     }
-    // Apache may strip Authorization; fall back to query param
     return $_GET['key'] ?? '';
+}
+
+function check_auth(): void
+{
+    $token = get_bearer_token();
+    if (!$token || !hash_equals(API_KEY, $token)) {
+        send_json(401, ['ok' => false, 'error' => 'Unauthorized. Invalid or missing API key.']);
+    }
 }
 
 function generate_filename(string $originalName, string $ext): string
 {
-    // Use original slugified name + short unique suffix to keep names readable
     $base = pathinfo($originalName, PATHINFO_FILENAME);
     $base = preg_replace('/[^a-zA-Z0-9-_]/', '-', $base);
     $base = preg_replace('/-+/', '-', $base);
@@ -77,26 +87,161 @@ function generate_filename(string $originalName, string $ext): string
     return "{$datePrefix}/{$base}-{$suffix}.{$ext}";
 }
 
-// --- GET: health check -----------------------------------------------------
+/**
+ * Recursively scan the images directory and return all image files.
+ * Returns flat list with: path, url, size, modified (ISO date), filename
+ */
+function list_images(string $dir, string $baseDir): array
+{
+    $images = [];
+    if (!is_dir($dir)) {
+        return $images;
+    }
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'];
+
+    foreach ($iterator as $file) {
+        if (!$file->isFile()) continue;
+        $ext = strtolower($file->getExtension());
+        if (!in_array($ext, $allowedExtensions, true)) continue;
+
+        $fullPath = $file->getPathname();
+        $relativePath = ltrim(str_replace($baseDir, '', $fullPath), '/\\');
+        // Normalize to forward slashes (for URLs)
+        $relativePath = str_replace('\\', '/', $relativePath);
+
+        $images[] = [
+            'path' => $relativePath,
+            'url' => PUBLIC_BASE_URL . '/images/' . $relativePath,
+            'filename' => $file->getFilename(),
+            'size' => $file->getSize(),
+            'modified' => date('c', $file->getMtime()),
+            'extension' => $ext,
+        ];
+    }
+
+    return $images;
+}
+
+/**
+ * Safely resolve a requested path and verify it's within the upload directory.
+ * Returns the absolute path or null if invalid.
+ */
+function resolve_safe_path(string $relativePath): ?string
+{
+    $relativePath = str_replace('\\', '/', $relativePath);
+    // Remove any leading slashes and normalize
+    $relativePath = ltrim($relativePath, '/');
+
+    // Block path traversal
+    if (strpos($relativePath, '..') !== false || strpos($relativePath, "\0") !== false) {
+        return null;
+    }
+
+    $fullPath = realpath(UPLOAD_DIR . '/' . $relativePath);
+    if ($fullPath === false) {
+        return null;
+    }
+
+    // Verify the resolved path is within UPLOAD_DIR
+    $realUploadDir = realpath(UPLOAD_DIR);
+    if ($realUploadDir === false || strpos($fullPath, $realUploadDir) !== 0) {
+        return null;
+    }
+
+    return $fullPath;
+}
+
+// ─── GET: health check, or list images ────────────────────────────────────
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+    if (isset($_GET['list'])) {
+        // List images — requires auth
+        check_auth();
+
+        $images = list_images(UPLOAD_DIR, UPLOAD_DIR);
+
+        // Filter by search query if provided
+        $query = trim($_GET['q'] ?? '');
+        if ($query !== '') {
+            $queryLower = strtolower($query);
+            $images = array_values(array_filter($images, function ($img) use ($queryLower) {
+                return stripos($img['filename'], $queryLower) !== false
+                    || stripos($img['path'], $queryLower) !== false;
+            }));
+        }
+
+        // Sort by modified date (newest first)
+        usort($images, function ($a, $b) {
+            return strcmp($b['modified'], $a['modified']);
+        });
+
+        // Pagination
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = min(100, max(1, (int)($_GET['per_page'] ?? 50)));
+        $total = count($images);
+        $offset = ($page - 1) * $perPage;
+        $pageImages = array_slice($images, $offset, $perPage);
+
+        send_json(200, [
+            'ok' => true,
+            'images' => $pageImages,
+            'total' => $total,
+            'page' => $page,
+            'per_page' => $perPage,
+            'total_pages' => (int)ceil($total / $perPage),
+        ]);
+    }
+
+    // Health check (no auth)
     send_json(200, [
         'ok' => true,
         'service' => 'sanaa-thrumylens-cdn',
-        'methods' => ['POST' => 'upload image (multipart/form-data, field name: file)'],
-        'auth' => 'Bearer token required',
+        'methods' => [
+            'GET ?list=true' => 'list all images',
+            'POST' => 'upload image (multipart/form-data, field name: file)',
+            'DELETE ?path=YYYY/MM/file.jpg' => 'delete an image',
+        ],
+        'auth' => 'Bearer token required for all operations',
     ]);
 }
 
-// --- POST: handle upload ---------------------------------------------------
-if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    send_json(405, ['ok' => false, 'error' => 'Method not allowed. Use POST.']);
+// ─── DELETE: delete an image ─────────────────────────────────────────────
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'DELETE') {
+    check_auth();
+
+    $path = trim($_GET['path'] ?? '');
+    if ($path === '') {
+        send_json(400, ['ok' => false, 'error' => 'Path parameter is required. Use ?path=YYYY/MM/file.jpg']);
+    }
+
+    $fullPath = resolve_safe_path($path);
+    if ($fullPath === null || !file_exists($fullPath)) {
+        send_json(404, ['ok' => false, 'error' => 'File not found.']);
+    }
+
+    if (!unlink($fullPath)) {
+        send_json(500, ['ok' => false, 'error' => 'Failed to delete file.']);
+    }
+
+    $relativePath = str_replace('\\', '/', ltrim(str_replace(realpath(UPLOAD_DIR), '', $fullPath), '/\\'));
+
+    send_json(200, [
+        'ok' => true,
+        'deleted' => $relativePath,
+    ]);
 }
 
-// Auth check
-$token = get_bearer_token();
-if (!$token || !hash_equals(API_KEY, $token)) {
-    send_json(401, ['ok' => false, 'error' => 'Unauthorized. Invalid or missing API key.']);
+// ─── POST: handle upload ─────────────────────────────────────────────────
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+    send_json(405, ['ok' => false, 'error' => 'Method not allowed. Use POST, GET, or DELETE.']);
 }
+
+check_auth();
 
 // File check
 if (!isset($_FILES['file']) || $_FILES['file']['error'] === UPLOAD_ERR_NO_FILE) {

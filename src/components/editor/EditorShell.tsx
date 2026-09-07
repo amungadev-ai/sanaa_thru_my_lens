@@ -8,6 +8,7 @@ import {
   FileText,
   User,
   CalendarDays,
+  Image,
   LogOut,
   ExternalLink,
   Menu,
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/editor", label: "Dashboard", icon: LayoutDashboard },
   { href: "/editor/calendar", label: "My Calendar", icon: CalendarDays },
   { href: "/editor/posts", label: "My Stories", icon: FileText },
+  { href: "/editor/media", label: "Media", icon: Image },
   { href: "/editor/profile", label: "My Profile", icon: User },
 ];
 
