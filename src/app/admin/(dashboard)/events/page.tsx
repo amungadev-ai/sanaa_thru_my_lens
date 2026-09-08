@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { getCachedAllEventsAdmin, getCachedEventStats } from "@/lib/data-cache";
 import { getEventStatus, formatEventDateShort } from "@/lib/events";
+import { toISOStringSafe } from "@/lib/date-utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar, MapPin } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AdminEventsTable } from "./AdminEventsTable";
 
 export const runtime = "nodejs";
@@ -57,7 +58,7 @@ export default async function AdminEventsPage() {
           category: e.category,
           city: e.city,
           venue: e.venue,
-          startDate: e.startDate.toISOString(),
+          startDate: toISOStringSafe(e.startDate),
         }))} />
       </Card>
     </div>
