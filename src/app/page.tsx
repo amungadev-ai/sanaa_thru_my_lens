@@ -13,7 +13,7 @@ import {
 } from "@/lib/data-cache";
 import type { PublicPost } from "@/lib/posts";
 import Link from "next/link";
-import { ArrowRight, Users } from "lucide-react";
+import { ArrowRight, Sparkles, Users } from "lucide-react";
 
 export const runtime = "nodejs";
 export const revalidate = 300;
@@ -38,7 +38,7 @@ function toPublicPost(p: Awaited<ReturnType<typeof getCachedPublishedPosts>>[num
 export default async function HomePage() {
   const [featuredRaw, recentRaw, categories, subscriberCount, postCountsByCategory] = await Promise.all([
     getCachedFeaturedPost(),
-    getCachedPublishedPosts(8),
+    getCachedPublishedPosts(10),
     getCachedCategories(),
     getCachedSubscriberCount(),
     getCachedPostCountsByCategory(),
@@ -52,9 +52,11 @@ export default async function HomePage() {
     ? [featured, ...recent.filter((p) => p.id !== featured.id).slice(0, 4)]
     : recent.slice(0, 5);
 
-  // Posts for the main grid (after carousel)
-  const gridPosts = recent.filter((p) => !carouselPosts.some((c) => c.id === p.id)).slice(0, 3);
-  const listPosts = recent.filter((p) => !carouselPosts.some((c) => c.id === p.id) && !gridPosts.some((g) => g.id === p.id)).slice(0, 4);
+  // Top grid (3 stories below the carousel)
+  const topGrid = recent.filter((p) => p.id !== featured?.id).slice(0, 3);
+
+  // More stories (horizontal list in the sidebar area)
+  const moreStories = recent.filter((p) => p.id !== featured?.id && !topGrid.some((g) => g.id === p.id)).slice(0, 4);
 
   // Category counts
   const countMap = new Map<string, number>();
@@ -71,6 +73,26 @@ export default async function HomePage() {
       <SiteHeader />
 
       <main className="flex-1">
+        {/* Hero / Intro band */}
+        <section className="border-b border-border/60 bg-secondary/20">
+          <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
+            <div className="flex flex-col items-start gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                <Sparkles className="h-3 w-3" />
+                Kenyan Creative Arts · Est. 2025
+              </div>
+              <h1 className="display-serif max-w-4xl text-3xl leading-[1.05] text-foreground md:text-5xl">
+                Art, <em className="text-primary">through</em> my lens.
+              </h1>
+              <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
+                Long-form reviews, essays and scene reports on the music, literature,
+                culture and people defining Kenya&apos;s creative economy — written from Nairobi,
+                read everywhere.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Hero Carousel */}
         {carouselPosts.length > 0 && (
           <section className="mx-auto max-w-7xl px-4 py-6 md:px-6">
@@ -89,23 +111,54 @@ export default async function HomePage() {
           </section>
         )}
 
+        {/* Featured post (Editor's Pick) */}
+        {featured && (
+          <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6">
+            <div className="mb-4 flex items-end justify-between">
+              <div>
+                <h2 className="font-serif text-2xl font-bold">Editor&apos;s Pick</h2>
+                <p className="mt-1 text-sm text-muted-foreground">The story we&apos;re spotlighting this week.</p>
+              </div>
+              <Link href="/category/features" className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:inline-flex">
+                All features <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <ArticleCard post={featured} variant="featured" priority />
+          </section>
+        )}
+
+        {/* Latest Stories grid */}
+        {topGrid.length > 0 && (
+          <section className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
+            <h2 className="font-serif text-2xl font-bold">Latest Stories</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Fresh from the Sanaa Thrumylens desk.</p>
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {topGrid.map((post) => (
+                <ArticleCard key={post.id} post={post} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Categories band */}
         <section className="border-y border-border bg-secondary/20">
-          <div className="mx-auto max-w-7xl px-4 py-6 md:px-6">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+          <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
+            <h2 className="font-serif text-2xl font-bold">Explore by Section</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Five beats, one obsession: Kenya&apos;s creative pulse.</p>
+            <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
               {categoryCounts.map((cat) => (
                 <Link
                   key={cat.id}
                   href={`/category/${cat.slug}`}
-                  className="group flex flex-col rounded-lg border border-border bg-card p-3 transition-all hover:border-primary/40 hover:shadow-sm"
+                  className="group flex flex-col rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-sm"
                 >
-                  <span className="font-serif text-sm font-bold leading-tight group-hover:text-primary">
+                  <span className="font-serif text-base font-bold leading-tight group-hover:text-primary">
                     {cat.name}
                   </span>
-                  <span className="mt-1 text-[11px] text-muted-foreground line-clamp-1">
+                  <span className="mt-1 text-xs text-muted-foreground line-clamp-2">
                     {cat.description}
                   </span>
-                  <span className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <span className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     {cat.count} {cat.count === 1 ? "story" : "stories"}
                   </span>
                 </Link>
@@ -114,31 +167,22 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Main content — 2 column layout */}
-        <section className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
+        {/* More Stories + sidebar */}
+        <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
             {/* Main column */}
             <div>
-              {gridPosts.length > 0 && (
+              {moreStories.length > 0 && (
                 <>
-                  <h2 className="font-serif text-2xl font-bold">Latest Stories</h2>
-                  <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {gridPosts.map((post) => (
-                      <ArticleCard key={post.id} post={post} />
-                    ))}
+                  <div className="flex items-end justify-between">
+                    <h2 className="font-serif text-2xl font-bold">More Stories</h2>
                   </div>
-                </>
-              )}
-
-              {listPosts.length > 0 && (
-                <div className="mt-10">
-                  <h2 className="font-serif text-2xl font-bold">More Stories</h2>
                   <div className="mt-6 divide-y divide-border">
-                    {listPosts.map((post) => (
+                    {moreStories.map((post) => (
                       <ArticleCard key={post.id} post={post} variant="horizontal" className="py-6 first:pt-0" />
                     ))}
                   </div>
-                </div>
+                </>
               )}
 
               <div className="mt-8 text-center">
@@ -146,7 +190,7 @@ export default async function HomePage() {
                   href="/search"
                   className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-6 py-3 text-sm font-semibold transition-colors hover:border-primary/40 hover:bg-secondary/40"
                 >
-                  Browse all stories <ArrowRight className="h-4 w-4" />
+                  View more stories <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -156,12 +200,14 @@ export default async function HomePage() {
               {/* Events widget */}
               <EventsSidebar />
 
-              {/* About */}
+              {/* About blurb */}
               <div className="rounded-lg border border-border bg-card p-6">
                 <h3 className="font-serif text-lg font-bold">About Sanaa Thrumylens</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  An independent Kenyan creative-arts blog documenting the music, literature,
-                  culture and people shaping East Africa&apos;s creative economy.
+                  Sanaa Thrumylens — &ldquo;Art Through My Lens&rdquo; — is an independent
+                  creative-arts blog documenting Kenya&apos;s music, literature, culture and the
+                  people shaping East Africa&apos;s creative economy. We publish slow, considered
+                  writing for readers who care about the craft.
                 </p>
                 <Link
                   href="/about"
