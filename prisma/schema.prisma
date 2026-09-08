@@ -158,3 +158,28 @@ model Reader {
   @@index([email])
   @@index([status])
 }
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String    @db.VarChar(255)
+  slug        String    @unique @db.VarChar(191)
+  description String?   @db.Text // short description (not long-form)
+  coverImage  String?   @db.VarChar(500)
+  category    String?   @db.VarChar(100) // Music, Literature, Culture, Film, etc.
+  venue       String?   @db.VarChar(255) // venue name
+  city        String    @default("Nairobi") @db.VarChar(100) // Nairobi, Mombasa, Kisumu, etc.
+  address     String?   @db.VarChar(500) // full address for maps
+  startDate   DateTime // required — when the event starts
+  endDate     DateTime? // optional — for multi-day events
+  ticketPrice String?   @db.VarChar(100) // "KSh 1,500" or "Free"
+  ticketUrl   String?   @db.VarChar(500) // link to buy tickets
+  eventUrl    String?   @db.VarChar(500) // official event page
+  status      String    @default("PUBLISHED") @db.VarChar(20) // DRAFT | PUBLISHED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([startDate])
+  @@index([city])
+  @@index([category])
+  @@index([status])
+}

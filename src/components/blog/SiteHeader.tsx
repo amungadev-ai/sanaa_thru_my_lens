@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: "/category/literature", label: "Literature" },
   { href: "/category/culture-opinion", label: "Culture" },
   { href: "/category/scene-reports", label: "Scene" },
+  { href: "/events", label: "Events" },
   { href: "/about", label: "About" },
 ];
 

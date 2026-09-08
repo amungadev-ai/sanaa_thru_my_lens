@@ -66,6 +66,7 @@ export function SiteFooter() {
               <li><Link href="/category/literature" className="text-muted-foreground hover:text-primary">Literature</Link></li>
               <li><Link href="/category/culture-opinion" className="text-muted-foreground hover:text-primary">Culture &amp; Opinion</Link></li>
               <li><Link href="/category/scene-reports" className="text-muted-foreground hover:text-primary">Scene Reports</Link></li>
+              <li><Link href="/events" className="text-muted-foreground hover:text-primary">Events</Link></li>
               <li><Link href="/category/features" className="text-muted-foreground hover:text-primary">Features</Link></li>
             </ul>
           </div>

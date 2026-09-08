@@ -40,6 +40,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/calendar", label: "Calendar", icon: CalendarDays },
       { href: "/admin/posts", label: "Posts", icon: FileText },
+      { href: "/admin/events", label: "Events", icon: Calendar },
       { href: "/admin/media", label: "Media", icon: Image },
       { href: "/admin/categories", label: "Categories", icon: FolderTree },
     ],

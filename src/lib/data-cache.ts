@@ -429,3 +429,90 @@ export const getCachedEditorComments = unstable_cache(
   ["editor-comments-moderation"],
   { revalidate: 300, tags: ["posts"] }
 );
+
+// ─── Event queries ──────────────────────────────────────────────────────
+
+export const getCachedUpcomingEvents = unstable_cache(
+  async (limit: number) => {
+    return withRetry(() =>
+      db.event.findMany({
+        where: {
+          status: "PUBLISHED",
+          startDate: { gte: new Date() },
+        },
+        orderBy: { startDate: "asc" },
+        take: limit,
+      })
+    );
+  },
+  ["upcoming-events"],
+  { revalidate: 300, tags: ["events"] }
+);
+
+export const getCachedEventBySlug = unstable_cache(
+  async (slug: string) => {
+    return withRetry(() => db.event.findUnique({ where: { slug } }));
+  },
+  ["event-by-slug"],
+  { revalidate: 300, tags: ["events"] }
+);
+
+export const getCachedAllEvents = unstable_cache(
+  async (filter: "upcoming" | "past" | "all", city?: string) => {
+    return withRetry(() =>
+      db.event.findMany({
+        where: {
+          status: "PUBLISHED",
+          ...(city && city !== "all" ? { city } : {}),
+          ...(filter === "upcoming" ? { startDate: { gte: new Date() } } : {}),
+          ...(filter === "past" ? { startDate: { lt: new Date() } } : {}),
+        },
+        orderBy: filter === "past" ? { startDate: "desc" } : { startDate: "asc" },
+        take: 100,
+      })
+    );
+  },
+  ["all-events"],
+  { revalidate: 300, tags: ["events"] }
+);
+
+export const getCachedAllEventsAdmin = unstable_cache(
+  async () => {
+    return withRetry(() =>
+      db.event.findMany({
+        orderBy: { startDate: "desc" },
+        take: 100,
+      })
+    );
+  },
+  ["all-events-admin"],
+  { revalidate: 300, tags: ["events"] }
+);
+
+export const getCachedEventCities = unstable_cache(
+  async () => {
+    return withRetry(() =>
+      db.event.findMany({
+        where: { status: "PUBLISHED" },
+        select: { city: true },
+        distinct: ["city"],
+        orderBy: { city: "asc" },
+      })
+    );
+  },
+  ["event-cities"],
+  { revalidate: 600, tags: ["events"] }
+);
+
+export const getCachedEventStats = unstable_cache(
+  async () => {
+    const [total, upcoming, past] = await Promise.all([
+      withRetry(() => db.event.count()),
+      withRetry(() => db.event.count({ where: { startDate: { gte: new Date() }, status: "PUBLISHED" } })),
+      withRetry(() => db.event.count({ where: { startDate: { lt: new Date() } } })),
+    ]);
+    return { total, upcoming, past };
+  },
+  ["event-stats"],
+  { revalidate: 300, tags: ["events"] }
+);

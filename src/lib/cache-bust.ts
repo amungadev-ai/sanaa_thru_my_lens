@@ -33,3 +33,7 @@ export function bustAllCaches() {
   revalidateTag("editors");
   revalidateTag("settings");
 }
+
+export function bustEventsCache() {
+  revalidateTag("events");
+}
