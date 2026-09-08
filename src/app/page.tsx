@@ -13,7 +13,7 @@ import {
 } from "@/lib/data-cache";
 import type { PublicPost } from "@/lib/posts";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 
 export const runtime = "nodejs";
 export const revalidate = 300;
@@ -52,10 +52,10 @@ export default async function HomePage() {
     ? [featured, ...recent.filter((p) => p.id !== featured.id).slice(0, 4)]
     : recent.slice(0, 5);
 
-  // Top grid (3 stories below the carousel)
+  // Top grid (3 stories — in the 2-column layout with sidebar)
   const topGrid = recent.filter((p) => p.id !== featured?.id).slice(0, 3);
 
-  // More stories (horizontal list in the sidebar area)
+  // More stories (horizontal list below the grid)
   const moreStories = recent.filter((p) => p.id !== featured?.id && !topGrid.some((g) => g.id === p.id)).slice(0, 4);
 
   // Category counts
@@ -73,26 +73,6 @@ export default async function HomePage() {
       <SiteHeader />
 
       <main className="flex-1">
-        {/* Hero / Intro band */}
-        <section className="border-b border-border/60 bg-secondary/20">
-          <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
-            <div className="flex flex-col items-start gap-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
-                <Sparkles className="h-3 w-3" />
-                Kenyan Creative Arts · Est. 2025
-              </div>
-              <h1 className="display-serif max-w-4xl text-3xl leading-[1.05] text-foreground md:text-5xl">
-                Art, <em className="text-primary">through</em> my lens.
-              </h1>
-              <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
-                Long-form reviews, essays and scene reports on the music, literature,
-                culture and people defining Kenya&apos;s creative economy — written from Nairobi,
-                read everywhere.
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Hero Carousel */}
         {carouselPosts.length > 0 && (
           <section className="mx-auto max-w-7xl px-4 py-6 md:px-6">
@@ -127,23 +107,10 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Latest Stories grid */}
-        {topGrid.length > 0 && (
-          <section className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
-            <h2 className="font-serif text-2xl font-bold">Latest Stories</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Fresh from the Sanaa Thrumylens desk.</p>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {topGrid.map((post) => (
-                <ArticleCard key={post.id} post={post} />
-              ))}
-            </div>
-          </section>
-        )}
-
         {/* Categories band */}
         <section className="border-y border-border bg-secondary/20">
           <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
-            <h2 className="font-serif text-2xl font-bold">Explore by Section</h2>
+            <h2 className="font-serif text-2xl font-bold">Explore by Category</h2>
             <p className="mt-1 text-sm text-muted-foreground">Five beats, one obsession: Kenya&apos;s creative pulse.</p>
             <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
               {categoryCounts.map((cat) => (
@@ -167,22 +134,34 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* More Stories + sidebar */}
+        {/* Latest Stories + sidebar (2-column from here) */}
         <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
             {/* Main column */}
             <div>
-              {moreStories.length > 0 && (
+              {/* Latest Stories grid */}
+              {topGrid.length > 0 && (
                 <>
-                  <div className="flex items-end justify-between">
-                    <h2 className="font-serif text-2xl font-bold">More Stories</h2>
+                  <h2 className="font-serif text-2xl font-bold">Latest Stories</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Fresh from the Sanaa Thrumylens desk.</p>
+                  <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+                    {topGrid.map((post) => (
+                      <ArticleCard key={post.id} post={post} />
+                    ))}
                   </div>
+                </>
+              )}
+
+              {/* More Stories */}
+              {moreStories.length > 0 && (
+                <div className="mt-10">
+                  <h2 className="font-serif text-2xl font-bold">More Stories</h2>
                   <div className="mt-6 divide-y divide-border">
                     {moreStories.map((post) => (
                       <ArticleCard key={post.id} post={post} variant="horizontal" className="py-6 first:pt-0" />
                     ))}
                   </div>
-                </>
+                </div>
               )}
 
               <div className="mt-8 text-center">
