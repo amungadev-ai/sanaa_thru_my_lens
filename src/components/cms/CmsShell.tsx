@@ -11,6 +11,7 @@ import {
   Users,
   PenTool,
   CalendarDays,
+  Calendar,
   MessageCircle,
   Image,
   LogOut,
