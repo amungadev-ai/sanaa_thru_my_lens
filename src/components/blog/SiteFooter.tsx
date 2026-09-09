@@ -85,7 +85,12 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {year} Sanaa Thrumylens. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <p>© {year} Sanaa Thrumylens. All rights reserved.</p>
+            <Link href="/privacy" className="hover:text-primary">Privacy</Link>
+            <Link href="/terms" className="hover:text-primary">Terms</Link>
+            <Link href="/cookies" className="hover:text-primary">Cookies</Link>
+          </div>
           <p>
             Made with care in Nairobi ·{" "}
             <a href="https://www.saaathrumylens.co.ke" className="hover:text-primary">www.saaathrumylens.co.ke</a>

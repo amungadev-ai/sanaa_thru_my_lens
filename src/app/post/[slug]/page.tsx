@@ -22,6 +22,7 @@ import { ShareButtons } from "@/components/blog/ShareButtons";
 import { ViewTracker } from "@/components/blog/ViewTracker";
 import { NewsletterForm } from "@/components/blog/NewsletterForm";
 import { CommentSection } from "@/components/blog/CommentSection";
+import { ReadTracker } from "@/components/blog/RecentlyRead";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -227,6 +228,13 @@ export default async function PostPage({ params }: PageProps) {
 
       <SiteFooter />
       <ViewTracker postId={post.id} />
+      <ReadTracker post={{
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        coverImage: post.coverImage,
+        category: post.category,
+      }} />
     </div>
   );
 }

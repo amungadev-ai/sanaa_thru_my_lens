@@ -4,6 +4,8 @@ import { ArticleCard } from "@/components/blog/ArticleCard";
 import { NewsletterForm } from "@/components/blog/NewsletterForm";
 import { HeroCarousel } from "@/components/blog/HeroCarousel";
 import { EventsSidebar } from "@/components/blog/EventsSidebar";
+import { RecentlyRead } from "@/components/blog/RecentlyRead";
+import { AdSlot } from "@/components/blog/AdSlot";
 import {
   getCachedPublishedPosts,
   getCachedFeaturedPost,
@@ -176,10 +178,7 @@ export default async function HomePage() {
 
             {/* Sidebar */}
             <aside className="space-y-6">
-              {/* Events widget */}
-              <EventsSidebar />
-
-              {/* About blurb */}
+              {/* 1. About Sanaa Thrumylens */}
               <div className="rounded-lg border border-border bg-card p-6">
                 <h3 className="font-serif text-lg font-bold">About Sanaa Thrumylens</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -196,9 +195,16 @@ export default async function HomePage() {
                 </Link>
               </div>
 
-              {/* Most Read */}
+              {/* 2. Google Ad */}
+              <AdSlot slotId="sidebar-top" label="Advertisement" />
+
+              {/* 3. Recently Read */}
+              <RecentlyRead />
+
+              {/* 4. Trending Now (Most Read) */}
               <div className="rounded-lg border border-border bg-card p-6">
-                <h3 className="font-serif text-lg font-bold">Most Read</h3>
+                <h3 className="font-serif text-lg font-bold">Trending Now</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Most-read stories this week</p>
                 <ol className="mt-4 space-y-4">
                   {[...recent]
                     .sort((a, b) => b.views - a.views)
@@ -214,20 +220,29 @@ export default async function HomePage() {
                 </ol>
               </div>
 
-              {/* Subscriber count */}
-              {subscriberCount > 0 && (
-                <div className="rounded-lg border border-border bg-card p-5">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4 text-primary" />
-                    <span>
-                      Join <strong className="font-bold text-foreground">{subscriberCount.toLocaleString()}</strong>{" "}
-                      {subscriberCount === 1 ? "reader" : "readers"} already getting The Weekly Dispatch.
-                    </span>
-                  </div>
-                </div>
-              )}
+              {/* 5. Upcoming Events */}
+              <EventsSidebar />
 
-              {/* Newsletter */}
+              {/* 6. Google Ad */}
+              <AdSlot slotId="sidebar-middle" label="Advertisement" />
+
+              {/* 7. Explore Categories */}
+              <div className="rounded-lg border border-border bg-card p-5">
+                <h3 className="font-serif text-lg font-bold">Explore Categories</h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {categoryCounts.map((cat) => (
+                    <Link
+                      key={cat.id}
+                      href={`/category/${cat.slug}`}
+                      className="rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-secondary hover:text-foreground"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* 8. The Weekly Dispatch */}
               <NewsletterForm />
             </aside>
           </div>

@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
-Disallow: /cms
+Disallow: /admin
+Disallow: /editor
 Disallow: /api
+Disallow: /comment-login
+Disallow: /comment-register
 
 Sitemap: https://www.saaathrumylens.co.ke/sitemap.xml
