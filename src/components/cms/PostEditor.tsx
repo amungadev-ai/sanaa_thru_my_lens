@@ -32,6 +32,7 @@ import {
   Wand2,
   Upload,
   FolderOpen,
+  FileText,
   ArrowLeft,
 } from "lucide-react";
 import { MediaPicker } from "@/components/media/MediaPicker";
@@ -144,6 +145,8 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
   const [uploadingContent, setUploadingContent] = useState(false);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [showContentPicker, setShowContentPicker] = useState(false);
+  const [parsingDoc, setParsingDoc] = useState(false);
+  const docFileInputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const contentFileInputRef = useRef<HTMLInputElement>(null);
@@ -187,6 +190,41 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
       const pos = start + insertion.length;
       ta.setSelectionRange(pos, pos);
     });
+  };
+
+  /**
+   * Upload a .docx or .pdf document and parse its content into the editor.
+   */
+  const handleDocUpload = async (file: File | null) => {
+    if (!file) return;
+    setParsingDoc(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload-document", { method: "POST", body: formData });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.ok) {
+        toast.error(result.error ?? `Document parsing failed (HTTP ${res.status})`);
+        return;
+      }
+
+      // Populate the editor fields
+      update("title", result.title);
+      if (result.slug) update("slug", result.slug);
+      if (result.excerpt) update("excerpt", result.excerpt);
+      update("content", result.content);
+      update("readingTime", result.readingTime ?? 1);
+
+      // Turn off auto-slug since we have a title from the document
+      setAutoSlug(false);
+
+      toast.success(`Parsed: ${result.title} (${result.wordCount ?? 0} words)`);
+    } catch {
+      toast.error("Network error during document upload");
+    } finally {
+      setParsingDoc(false);
+      if (docFileInputRef.current) docFileInputRef.current.value = "";
+    }
   };
 
   const handleGenerateCover = () => {
@@ -329,6 +367,22 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => docFileInputRef.current?.click()}
+            disabled={parsingDoc}
+            title="Upload a .docx, .pdf, or .txt file to auto-fill the editor"
+          >
+            {parsingDoc ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <FileText className="mr-1.5 h-4 w-4" />}
+            {parsingDoc ? "Parsing…" : "Upload Doc"}
+          </Button>
+          <input
+            ref={docFileInputRef}
+            type="file"
+            accept=".docx,.pdf,.txt"
+            className="hidden"
+            onChange={(e) => handleDocUpload(e.target.files?.[0] ?? null)}
+          />
           <Button
             variant="outline"
             onClick={() => handleSave(false)}
