@@ -37,7 +37,7 @@ export function VerifyTokenForm({ token }: { token: string }) {
           // Redirect back to the article (or home) after 2 seconds
           setTimeout(() => {
             const from = sessionStorage.getItem("comment_redirect") ?? "/";
-            router.push(from);
+            window.location.href = from;
           }, 2000);
         } else {
           setStatus("error");

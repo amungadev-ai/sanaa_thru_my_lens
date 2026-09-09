@@ -29,8 +29,7 @@ export function EditorLoginForm() {
         return;
       }
       toast.success("Welcome back!");
-      router.push("/editor");
-      router.refresh();
+      window.location.href = "/editor";
     } catch {
       toast.error("Network error");
     } finally {

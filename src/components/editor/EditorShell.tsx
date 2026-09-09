@@ -79,8 +79,7 @@ export function EditorShell({ editor, children }: EditorShellProps) {
 
   const handleLogout = async () => {
     await fetch("/api/editor-auth/logout", { method: "POST" });
-    router.push("/editor/login");
-    router.refresh();
+    window.location.href = "/editor/login";
   };
 
   const initials = (editor.name ?? editor.email)

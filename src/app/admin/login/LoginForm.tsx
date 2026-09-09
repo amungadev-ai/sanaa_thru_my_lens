@@ -29,8 +29,7 @@ export function LoginForm() {
         return;
       }
       toast.success("Welcome back, admin.");
-      router.push("/admin");
-      router.refresh();
+      window.location.href = "/admin";
     } catch {
       toast.error("Network error. Try again.");
     } finally {
