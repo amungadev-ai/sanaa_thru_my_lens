@@ -8,6 +8,37 @@ export const dynamic = "force-dynamic";
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 /**
+ * Polyfill DOMMatrix for mammoth.js on Node.js/Vercel serverless.
+ * mammoth uses DOMMatrix internally for some operations, but it doesn't
+ * exist in the Node.js global scope. This simple polyfill provides enough
+ * for mammoth to work.
+ */
+if (typeof globalThis.DOMMatrix === "undefined") {
+  // @ts-ignore
+  globalThis.DOMMatrix = class DOMMatrix {
+    private values: number[];
+    constructor(init?: string | number[]) {
+      if (typeof init === "string") {
+        // Parse matrix() string — not fully implemented, just enough for mammoth
+        const nums = init.match(/-?[\d.]+/g)?.map(Number) ?? [];
+        this.values = nums.length >= 6 ? nums : [1, 0, 0, 1, 0, 0];
+      } else if (Array.isArray(init)) {
+        this.values = init.length >= 6 ? init : [1, 0, 0, 1, 0, 0];
+      } else {
+        this.values = [1, 0, 0, 1, 0, 0]; // identity
+      }
+    }
+    get a() { return this.values[0] ?? 1; }
+    get b() { return this.values[1] ?? 0; }
+    get c() { return this.values[2] ?? 0; }
+    get d() { return this.values[3] ?? 1; }
+    get e() { return this.values[4] ?? 0; }
+    get f() { return this.values[5] ?? 0; }
+    isIdentity() { return this.values[0] === 1 && this.values[3] === 1 && this.values[1] === 0 && this.values[2] === 0 && this.values[4] === 0 && this.values[5] === 0; }
+  };
+}
+
+/**
  * Estimate reading time from word count
  */
 function estimateReadingTime(text: string): number {
@@ -16,13 +47,16 @@ function estimateReadingTime(text: string): number {
 }
 
 /**
- * Generate an excerpt from the first paragraph
+ * Generate an excerpt from the first body paragraph (skipping headings and titles)
  */
-function generateExcerpt(html: string, maxLen = 180): string {
-  // Extract text from first <p> tag
-  const match = html.match(/<p>(.*?)<\/p>/i);
-  if (match) {
-    const text = match[1].replace(/<[^>]+>/g, "").trim();
+function generateExcerpt(html: string, title: string, maxLen = 180): string {
+  const paragraphs = html.match(/<p>(.*?)<\/p>/gi) ?? [];
+  for (const p of paragraphs) {
+    const text = p.replace(/<[^>]+>/g, "").trim();
+    if (!text || text.length < 40) continue;
+    // Skip if this paragraph IS the title
+    if (title && text === title) continue;
+    // First real paragraph
     if (text.length <= maxLen) return text;
     const cut = text.slice(0, maxLen);
     const lastSpace = cut.lastIndexOf(" ");
@@ -32,18 +66,33 @@ function generateExcerpt(html: string, maxLen = 180): string {
 }
 
 /**
- * Extract a title from the document — first heading or first line
+ * Extract a title from the document — first heading or first short paragraph
  */
 function extractTitle(html: string, text: string): string {
-  // Try first <h1> or <h2>
-  const headingMatch = html.match(/<h[12][^>]*>(.*?)<\/h[12]>/i);
+  // Try first <h1>, <h2>, or <h3>
+  const headingMatch = html.match(/<h[123][^>]*>(.*?)<\/h[123]>/i);
   if (headingMatch) {
     return headingMatch[1].replace(/<[^>]+>/g, "").trim().slice(0, 255);
   }
-  // Fall back to first non-empty line of text
+
+  // No heading found — try to extract a title from the first paragraph
+  // Strategy: the first <p> that is short (< 200 chars) and looks like a title
+  // (no period at the end, doesn't start with lowercase)
+  const paragraphs = html.match(/<p>(.*?)<\/p>/gi) ?? [];
+  for (const p of paragraphs) {
+    const pText = p.replace(/<[^>]+>/g, "").trim();
+    if (pText.length === 0) continue;
+    // Skip if it looks like a body paragraph (long, ends with period)
+    if (pText.length > 150) continue;
+    if (/[.!?]$/.test(pText) && pText.split(/\s+/).length > 8) continue;
+    // This looks like a title
+    return pText.slice(0, 255);
+  }
+
+  // Fall back to first non-empty line of text (truncated to 120 chars)
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   if (lines.length > 0) {
-    return lines[0].slice(0, 255);
+    return lines[0].slice(0, 120);
   }
   return "Untitled Document";
 }
@@ -199,7 +248,7 @@ export async function POST(req: NextRequest) {
     }
 
     const title = extractTitle(html, plainText);
-    const excerpt = generateExcerpt(html);
+    const excerpt = generateExcerpt(html, title);
     const readingTime = estimateReadingTime(plainText);
     const slug = slugify(title);
 
