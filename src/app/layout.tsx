@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -37,8 +37,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Sanaa Thrumylens" }],
   metadataBase: new URL("https://www.saaathrumylens.co.ke"),
+  manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
   },
   openGraph: {
     title: "Sanaa Thrumylens — Art Through My Lens",
@@ -48,13 +55,29 @@ export const metadata: Metadata = {
     siteName: "Sanaa Thrumylens",
     type: "website",
     locale: "en_KE",
+    images: [
+      {
+        url: "/icons/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Sanaa Thrumylens",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Sanaa Thrumylens",
     description:
       "A Kenyan creative-arts blog covering music, literature, culture and the people shaping East Africa's creative economy.",
+    images: ["/icons/icon-512.png"],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#A0421C",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -64,6 +87,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* PWA splash screen for iOS */}
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Sanaa Thrumylens" />
+        <link rel="apple-touch-startup-image" href="/icons/splash.png" />
+      </head>
       <body
         className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground`}
       >

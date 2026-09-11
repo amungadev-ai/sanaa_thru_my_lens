@@ -1,0 +1,45 @@
+{
+  "name": "Sanaa Thrumylens — Art Through My Lens",
+  "short_name": "Sanaa Thrumylens",
+  "description": "A Kenyan creative-arts blog covering music, literature, culture and the people shaping East Africa's creative economy.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F2E9",
+  "theme_color": "#A0421C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/adaptive-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/splash.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Sanaa Thrumylens"
+    }
+  ]
+}
