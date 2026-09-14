@@ -60,7 +60,9 @@ async function parseDocx(filePath: string): Promise<{ text: string; html: string
 async function parsePdf(filePath: string): Promise<{ text: string; html: string }> {
   const { extractText } = await import("unpdf");
   const dataBuffer = fs.readFileSync(filePath);
-  const { text } = await extractText(dataBuffer, { mergePages: true });
+  // unpdf requires Uint8Array, not Buffer
+  const uint8 = new Uint8Array(dataBuffer);
+  const { text } = await extractText(uint8, { mergePages: true });
 
   if (!text || text.trim().length === 0) {
     throw new Error("No text extracted from PDF. It may be a scanned document.");
