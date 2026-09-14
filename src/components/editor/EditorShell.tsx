@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import NextImage from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -95,7 +95,7 @@ export function EditorShell({ editor, children }: EditorShellProps) {
       {/* Mobile top bar */}
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3 md:hidden">
         <Link href="/editor" className="flex items-center gap-2">
-          <Image src="/icons/icon.png" alt="ST" width={32} height={32} className="rounded-md" />
+          <NextImage src="/icons/icon.png" alt="ST" width={32} height={32} className="rounded-md" />
           <span className="font-serif text-sm font-bold text-sidebar-foreground">Editor</span>
         </Link>
         <Button
@@ -126,7 +126,7 @@ export function EditorShell({ editor, children }: EditorShellProps) {
         {/* Desktop sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
           <Link href="/editor" className="mb-6 flex items-center gap-2.5">
-            <Image src="/icons/icon.png" alt="ST" width={36} height={36} className="rounded-md" />
+            <NextImage src="/icons/icon.png" alt="ST" width={36} height={36} className="rounded-md" />
             <div className="flex flex-col leading-none">
               <span className="font-serif text-sm font-bold text-sidebar-foreground">Sanaa Thrumylens</span>
               <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">Editor Dashboard</span>
