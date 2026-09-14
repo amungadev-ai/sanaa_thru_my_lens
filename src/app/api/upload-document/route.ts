@@ -37,21 +37,34 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * Parse a .docx file using docx-parser (pure Node.js, no DOMMatrix needed).
- * Returns plain text which we convert to HTML.
+ * Parse a .docx file by reading the ZIP and extracting word/document.xml.
+ * Uses adm-zip (pure JS, no file system writes, works on Vercel).
  */
 async function parseDocx(filePath: string): Promise<{ text: string; html: string }> {
-  const docxParser = (await import("docx-parser")).default;
-  return new Promise((resolve, reject) => {
-    docxParser.parseDocx(filePath, (text: string) => {
-      if (!text || text.trim().length === 0) {
-        reject(new Error("No text extracted from .docx file."));
-        return;
-      }
-      const html = textToHtml(text);
-      resolve({ text, html });
-    });
-  });
+  const AdmZip = (await import("adm-zip")).default;
+  const zip = new AdmZip(filePath);
+  const documentEntry = zip.getEntry("word/document.xml");
+
+  if (!documentEntry) {
+    throw new Error("Could not find document.xml in the .docx file. It may be corrupted.");
+  }
+
+  const xmlContent = documentEntry.getData().toString("utf8");
+
+  // Extract plain text from the Word XML
+  // </w:p> marks paragraph ends → convert to newlines
+  // Strip all remaining XML tags
+  const text = xmlContent
+    .replace(/<\/w:p>/g, "\n")
+    .replace(/<[^>]+>/g, "")
+    .trim();
+
+  if (!text || text.length === 0) {
+    throw new Error("No text extracted from .docx file.");
+  }
+
+  const html = textToHtml(text);
+  return { text, html };
 }
 
 /**
