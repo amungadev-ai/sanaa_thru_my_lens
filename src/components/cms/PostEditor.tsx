@@ -644,7 +644,12 @@ export function PostEditor({ initialData, categories, editors = [], mode, apiBas
                 <Label className="text-xs text-muted-foreground">Author</Label>
                 {editors.length > 0 ? (
                   <Select
-                    value={data.author}
+                    value={
+                      // Match the current author to its select value
+                      data.author === "Sanaa Thrumylens"
+                        ? "sanaa-thrumylens"
+                        : editors.find((e) => (e.name ?? e.email.split("@")[0]) === data.author)?.id ?? "sanaa-thrumylens"
+                    }
                     onValueChange={(v) => {
                       if (v === "sanaa-thrumylens") {
                         update("author", "Sanaa Thrumylens");
