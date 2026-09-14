@@ -28,6 +28,7 @@ export default async function EditorEditPostPage({ params }: PageProps) {
     <PostEditor
       mode="edit"
       categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug }))}
+      editors={[{ id: editor.id, name: editor.name, email: editor.email }]}
       apiBase="/api/editor/posts"
       redirectAfterSave="/editor/posts"
       initialData={{

@@ -61,12 +61,19 @@ interface Category {
   slug: string;
 }
 
+interface EditorOption {
+  id: string;
+  name: string | null;
+  email: string;
+}
+
 interface PostEditorProps {
   initialData: PostEditorData;
   categories: Category[];
+  editors?: EditorOption[];
   mode: "create" | "edit";
-  apiBase?: string;          // default: "/api/posts" (admin). Editors use "/api/editor/posts"
-  redirectAfterSave?: string; // default: "/admin/posts". Editors use "/editor/posts"
+  apiBase?: string;
+  redirectAfterSave?: string;
 }
 
 function slugify(text: string): string {
@@ -135,7 +142,7 @@ function generateCoverSvg(title: string, category: string, author: string): stri
 </svg>`;
 }
 
-export function PostEditor({ initialData, categories, mode, apiBase = "/api/posts", redirectAfterSave = "/admin/posts" }: PostEditorProps) {
+export function PostEditor({ initialData, categories, editors = [], mode, apiBase = "/api/posts", redirectAfterSave = "/admin/posts" }: PostEditorProps) {
   const router = useRouter();
   const [data, setData] = useState<PostEditorData>(initialData);
   const [saving, setSaving] = useState(false);
@@ -635,11 +642,39 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground">Author</Label>
-                <Input
-                  value={data.author}
-                  onChange={(e) => update("author", e.target.value)}
-                  className="mt-1"
-                />
+                {editors.length > 0 ? (
+                  <Select
+                    value={data.author}
+                    onValueChange={(v) => {
+                      if (v === "sanaa-thrumylens") {
+                        update("author", "Sanaa Thrumylens");
+                      } else {
+                        const editor = editors.find((e) => e.id === v);
+                        if (editor) {
+                          update("author", editor.name ?? editor.email.split("@")[0]);
+                        }
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sanaa-thrumylens">Sanaa Thrumylens</SelectItem>
+                      {editors.map((e) => (
+                        <SelectItem key={e.id} value={e.id}>
+                          {e.name ?? e.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    value={data.author}
+                    onChange={(e) => update("author", e.target.value)}
+                    className="mt-1"
+                  />
+                )}
               </div>
             </div>
           </Card>

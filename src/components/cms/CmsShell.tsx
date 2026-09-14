@@ -80,7 +80,7 @@ function NavLinks({
       {NAV_SECTIONS.map((section, sIdx) => (
         <div key={sIdx}>
           {section.label && (
-            <p className="mb-1 mt-4 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/40 first:mt-0">
+            <p className="mb-0.5 mt-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/40 first:mt-0">
               {section.label}
             </p>
           )}
@@ -96,7 +96,7 @@ function NavLinks({
                 href={item.href}
                 onClick={onNavigate}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
                   active
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
@@ -157,9 +157,9 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex">
         {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
-          <Link href="/admin" className="mb-6 flex items-center gap-2.5">
-            <NextImage src="/icons/icon.png" alt="ST" width={36} height={36} className="rounded-md" />
+        <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar p-3 md:flex">
+          <Link href="/admin" className="mb-4 flex items-center gap-2.5">
+            <NextImage src="/icons/icon.png" alt="ST" width={32} height={32} className="rounded-md" />
             <div className="flex flex-col leading-none">
               <span className="font-serif text-sm font-bold text-sidebar-foreground">Sanaa Thrumylens</span>
               <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">Admin Dashboard</span>
@@ -168,18 +168,18 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
 
           <Button
             asChild
-            className="mb-6 bg-primary text-primary-foreground hover:bg-primary/90"
+            className="mb-4 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Link href="/admin/posts/new">
               <Plus className="mr-1.5 h-4 w-4" /> New Post
             </Link>
           </Button>
 
-          <nav className="flex-1 space-y-1">
+          <nav className="flex-1 overflow-y-auto space-y-0.5 pr-1" style={{ scrollbarWidth: "thin" }}>
             <NavLinks pathname={pathname} />
           </nav>
 
-          <div className="space-y-1 border-t border-sidebar-border pt-3">
+          <div className="mt-2 space-y-1 border-t border-sidebar-border pt-2">
             <Link
               href="/"
               target="_blank"

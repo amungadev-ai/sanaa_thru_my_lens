@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getCategories } from "@/lib/posts";
+import { getCachedAllEditorsForAssignment } from "@/lib/data-cache";
 import { PostEditor } from "@/components/cms/PostEditor";
 
 export const runtime = "nodejs";
@@ -15,12 +16,16 @@ export default async function EditPostPage({ params }: PageProps) {
   const { id } = await params;
   const post = await db.post.findUnique({ where: { id } });
   if (!post) notFound();
-  const categories = await getCategories();
+  const [categories, editors] = await Promise.all([
+    getCategories(),
+    getCachedAllEditorsForAssignment().catch(() => []),
+  ]);
 
   return (
     <PostEditor
       mode="edit"
       categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug }))}
+      editors={editors.map((e) => ({ id: e.id, name: e.name, email: e.email }))}
       initialData={{
         id: post.id,
         title: post.title,

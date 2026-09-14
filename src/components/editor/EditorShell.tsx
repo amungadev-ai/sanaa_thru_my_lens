@@ -124,26 +124,26 @@ export function EditorShell({ editor, children }: EditorShellProps) {
 
       <div className="flex">
         {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
-          <Link href="/editor" className="mb-6 flex items-center gap-2.5">
-            <NextImage src="/icons/icon.png" alt="ST" width={36} height={36} className="rounded-md" />
+        <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar p-3 md:flex">
+          <Link href="/editor" className="mb-4 flex items-center gap-2.5">
+            <NextImage src="/icons/icon.png" alt="ST" width={32} height={32} className="rounded-md" />
             <div className="flex flex-col leading-none">
               <span className="font-serif text-sm font-bold text-sidebar-foreground">Sanaa Thrumylens</span>
               <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/50">Editor Dashboard</span>
             </div>
           </Link>
 
-          <Button asChild className="mb-6 bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button asChild className="mb-4 bg-primary text-primary-foreground hover:bg-primary/90">
             <Link href="/editor/posts/new">
               <Plus className="mr-1.5 h-4 w-4" /> New Story
             </Link>
           </Button>
 
-          <nav className="flex-1 space-y-1">
+          <nav className="flex-1 overflow-y-auto space-y-0.5 pr-1" style={{ scrollbarWidth: "thin" }}>
             <NavLinks pathname={pathname} />
           </nav>
 
-          <div className="space-y-1 border-t border-sidebar-border pt-3">
+          <div className="mt-2 space-y-1 border-t border-sidebar-border pt-2">
             <Link
               href="/"
               target="_blank"
