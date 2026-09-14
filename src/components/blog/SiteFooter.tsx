@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Instagram, Twitter, Mail, Rss } from "lucide-react";
 
 export function SiteFooter() {
@@ -10,9 +11,7 @@ export function SiteFooter() {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <span className="font-serif text-lg font-bold">ST</span>
-              </div>
+              <Image src="/icons/icon.png" alt="Sanaa Thrumylens" width={40} height={40} className="rounded-md" />
               <div className="flex flex-col leading-none">
                 <span className="font-serif text-lg font-bold tracking-tight">Sanaa Thrumylens</span>
                 <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Art Through My Lens</span>

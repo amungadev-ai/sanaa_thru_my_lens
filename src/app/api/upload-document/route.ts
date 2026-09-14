@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
 import { getCurrentEditor } from "@/lib/editor-auth";
-import { execFile } from "child_process";
-import { promisify } from "util";
-import { marked } from "marked";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
@@ -11,90 +8,7 @@ import * as os from "os";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const execFileAsync = promisify(execFile);
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-
-/**
- * Run markitdown (Python CLI) on a file and return Markdown.
- */
-async function runMarkitdown(filePath: string): Promise<string> {
-  const markitdownPath = "/home/z/.local/bin/markitdown";
-  try {
-    const { stdout } = await execFileAsync(markitdownPath, [filePath], {
-      timeout: 60000,
-      maxBuffer: 10 * 1024 * 1024,
-      env: { ...process.env, PATH: "/home/z/.local/bin:" + process.env.PATH },
-    });
-    return stdout;
-  } catch (e) {
-    throw new Error(`markitdown failed: ${e instanceof Error ? e.message : String(e)}`);
-  }
-}
-
-/**
- * Convert Markdown to clean HTML using marked.
- * Configured to produce semantic HTML (h2 for ## headings, p for paragraphs, etc.)
- */
-function markdownToHtml(markdown: string): string {
-  marked.setOptions({
-    breaks: true,
-    gfm: true,
-  });
-  const html = marked.parse(markdown) as string;
-  // Clean up — remove empty paragraphs
-  return html.replace(/<p>\s*<\/p>/g, "").trim();
-}
-
-/**
- * Extract a title from the Markdown — first # heading or first line
- */
-function extractTitle(markdown: string): string {
-  // Try first # heading
-  const lines = markdown.split("\n");
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith("# ") && !trimmed.startsWith("## ")) {
-      return trimmed.replace(/^#\s+/, "").trim().slice(0, 255);
-    }
-  }
-  // Try first **bold** line (markitdown puts titles as **Title**)
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const boldMatch = trimmed.match(/^\*\*(.+?)\*\*$/);
-    if (boldMatch && boldMatch[1].length < 200) {
-      return boldMatch[1].trim();
-    }
-  }
-  // Fall back to first non-empty line (truncated)
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith("---")) {
-      return trimmed.replace(/[*_#`]/g, "").trim().slice(0, 120);
-    }
-  }
-  return "Untitled Document";
-}
-
-/**
- * Generate an excerpt from the first paragraph of the Markdown.
- */
-function generateExcerpt(markdown: string, title: string, maxLen = 180): string {
-  const lines = markdown.split("\n").map((l) => l.trim());
-  for (const line of lines) {
-    if (!line || line.startsWith("#") || line.startsWith("**") || line.startsWith("---")) continue;
-    // Skip the title if it appears as plain text
-    if (title && line.replace(/[*_#`]/g, "").trim() === title) continue;
-    // First real paragraph
-    const clean = line.replace(/[*_#`]/g, "").trim();
-    if (clean.length < 40) continue;
-    if (clean.length <= maxLen) return clean;
-    const cut = clean.slice(0, maxLen);
-    const lastSpace = cut.lastIndexOf(" ");
-    return cut.slice(0, lastSpace > 60 ? lastSpace : maxLen).trim() + "…";
-  }
-  return "";
-}
 
 /**
  * Estimate reading time from word count
@@ -111,6 +25,135 @@ function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+/**
+ * Parse a .docx file using docx-parser (pure Node.js, no DOMMatrix needed).
+ * Returns plain text which we convert to HTML.
+ */
+async function parseDocx(filePath: string): Promise<{ text: string; html: string }> {
+  const docxParser = (await import("docx-parser")).default;
+  return new Promise((resolve, reject) => {
+    docxParser.parseDocx(filePath, (text: string) => {
+      if (!text || text.trim().length === 0) {
+        reject(new Error("No text extracted from .docx file."));
+        return;
+      }
+      const html = textToHtml(text);
+      resolve({ text, html });
+    });
+  });
+}
+
+/**
+ * Parse a .pdf file using pdf-parse (pure Node.js).
+ */
+async function parsePdf(filePath: string): Promise<{ text: string; html: string }> {
+  const pdfParse = (await import("pdf-parse")).default;
+  const dataBuffer = fs.readFileSync(filePath);
+  const data = await pdfParse(dataBuffer);
+  const text = data.text;
+  if (!text || text.trim().length === 0) {
+    throw new Error("No text extracted from PDF. It may be a scanned document.");
+  }
+  const html = textToHtml(text);
+  return { text, html };
+}
+
+/**
+ * Convert plain text to HTML with basic heading detection.
+ * Strategy:
+ * - First non-empty line → title (wrapped in <h2>)
+ * - Lines that are short, start with uppercase, no period → <h2>
+ * - Other lines → <p> paragraphs
+ */
+function textToHtml(text: string): string {
+  const lines = text.split(/\r?\n/).map((l) => l.trim());
+  const htmlParts: string[] = [];
+  let isFirstLine = true;
+  let currentParagraph: string[] = [];
+
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      const para = currentParagraph.join(" ").trim();
+      if (para) {
+        htmlParts.push(`<p>${escapeHtml(para)}</p>`);
+      }
+      currentParagraph = [];
+    }
+  };
+
+  for (const line of lines) {
+    if (!line) {
+      flushParagraph();
+      continue;
+    }
+
+    // First non-empty line is the title
+    if (isFirstLine) {
+      htmlParts.push(`<h2>${escapeHtml(line)}</h2>`);
+      isFirstLine = false;
+      continue;
+    }
+
+    // Check if this looks like a heading:
+    // - Short (< 80 chars)
+    // - Doesn't end with period/question/exclamation (unless it's very short)
+    // - Few words (1-6)
+    const words = line.split(/\s+/);
+    const isHeading =
+      line.length < 80 &&
+      words.length <= 6 &&
+      !/[.!?]$/.test(line) &&
+      /^[A-Z]/.test(line);
+
+    if (isHeading) {
+      flushParagraph();
+      htmlParts.push(`<h2>${escapeHtml(line)}</h2>`);
+    } else {
+      currentParagraph.push(line);
+    }
+  }
+  flushParagraph();
+
+  return htmlParts.join("\n");
+}
+
+/**
+ * Extract a title from the text — first line
+ */
+function extractTitle(text: string): string {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length > 0) {
+    return lines[0].slice(0, 255);
+  }
+  return "Untitled Document";
+}
+
+/**
+ * Generate an excerpt from the second paragraph (skipping the title line)
+ */
+function generateExcerpt(text: string, title: string, maxLen = 180): string {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  for (const line of lines) {
+    if (line === title) continue; // skip title line
+    if (line.length < 40) continue; // skip short lines
+    // First real body paragraph
+    if (line.length <= maxLen) return line;
+    const cut = line.slice(0, maxLen);
+    const lastSpace = cut.lastIndexOf(" ");
+    return cut.slice(0, lastSpace > 60 ? lastSpace : maxLen).trim() + "…";
+  }
+  return "";
 }
 
 export async function POST(req: NextRequest) {
@@ -144,42 +187,51 @@ export async function POST(req: NextRequest) {
     const filename = file.name.toLowerCase();
     const ext = path.extname(filename);
 
-    // Supported extensions
-    const supported = [".docx", ".pdf", ".txt", ".md", ".doc", ".pptx", ".xlsx", ".html", ".csv"];
-    if (!supported.includes(ext)) {
-      return NextResponse.json(
-        { error: `Unsupported file type (.${ext}). Supported: ${supported.join(", ")}` },
-        { status: 415 }
-      );
-    }
-
-    // Save the file to a temp location (markitdown needs a file path)
+    // Save the file to a temp location
     const buffer = Buffer.from(await file.arrayBuffer());
     const tempDir = os.tmpdir();
     const tempFile = path.join(tempDir, `upload-${Date.now()}-${file.name}`);
     fs.writeFileSync(tempFile, buffer);
 
     try {
-      // Run markitdown
-      const markdown = await runMarkitdown(tempFile);
+      let text = "";
+      let html = "";
 
-      if (!markdown || markdown.trim().length === 0) {
+      if (ext === ".docx") {
+        const result = await parseDocx(tempFile);
+        text = result.text;
+        html = result.html;
+      } else if (ext === ".pdf") {
+        const result = await parsePdf(tempFile);
+        text = result.text;
+        html = result.html;
+      } else if (ext === ".txt" || ext === ".md") {
+        text = buffer.toString("utf-8");
+        html = textToHtml(text);
+      } else if (ext === ".doc") {
+        return NextResponse.json(
+          { error: "Legacy .doc format is not supported. Please save as .docx or .pdf." },
+          { status: 415 }
+        );
+      } else {
+        return NextResponse.json(
+          { error: `Unsupported file type (.${ext}). Supported: .docx, .pdf, .txt` },
+          { status: 415 }
+        );
+      }
+
+      if (!html || html.trim().length === 0) {
         return NextResponse.json(
           { error: "Could not extract any content from the document. It may be empty or scanned." },
           { status: 422 }
         );
       }
 
-      // Convert Markdown to HTML
-      const html = markdownToHtml(markdown);
-
-      // Extract title, excerpt, etc.
-      const title = extractTitle(markdown);
-      const excerpt = generateExcerpt(markdown, title);
-      const plainText = markdown.replace(/[*_#`>]/g, "").trim();
-      const readingTime = estimateReadingTime(plainText);
+      const title = extractTitle(text);
+      const excerpt = generateExcerpt(text, title);
+      const readingTime = estimateReadingTime(text);
       const slug = slugify(title);
-      const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+      const wordCount = text.split(/\s+/).filter(Boolean).length;
 
       return NextResponse.json({
         ok: true,

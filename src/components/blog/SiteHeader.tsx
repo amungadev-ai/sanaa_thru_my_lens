@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, Search } from "lucide-react";
@@ -26,9 +27,13 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link href="/" className="group flex items-center gap-2.5" onClick={() => setOpen(false)}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm transition-transform group-hover:scale-105">
-            <span className="font-serif text-lg font-bold">ST</span>
-          </div>
+          <Image
+            src="/icons/icon.png"
+            alt="Sanaa Thrumylens"
+            width={36}
+            height={36}
+            className="rounded-md transition-transform group-hover:scale-105"
+          />
           <div className="hidden flex-col leading-none sm:flex">
             <span className="font-serif text-base font-bold tracking-tight">Sanaa Thrumylens</span>
             <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Art Through My Lens</span>
