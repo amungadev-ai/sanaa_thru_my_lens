@@ -379,7 +379,7 @@ export function PostEditor({ initialData, categories, mode, apiBase = "/api/post
           <input
             ref={docFileInputRef}
             type="file"
-            accept=".docx,.pdf,.txt"
+            accept=".docx,.txt"
             className="hidden"
             onChange={(e) => handleDocUpload(e.target.files?.[0] ?? null)}
           />

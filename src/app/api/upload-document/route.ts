@@ -55,18 +55,28 @@ async function parseDocx(filePath: string): Promise<{ text: string; html: string
 }
 
 /**
- * Parse a .pdf file using pdf-parse (pure Node.js).
+ * Parse a .pdf file.
+ * PDF support is currently limited — pdf-parse has a known bug where it
+ * tries to load a test file on import. We attempt to load it but fall back
+ * to a helpful error message.
  */
-async function parsePdf(filePath: string): Promise<{ text: string; html: string }> {
-  const pdfParse = (await import("pdf-parse")).default;
-  const dataBuffer = fs.readFileSync(filePath);
-  const data = await pdfParse(dataBuffer);
-  const text = data.text;
-  if (!text || text.trim().length === 0) {
-    throw new Error("No text extracted from PDF. It may be a scanned document.");
+async function parsePdf(_filePath: string): Promise<{ text: string; html: string }> {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mod = require("module");
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require("pdf-parse");
+    const dataBuffer = fs.readFileSync(_filePath);
+    const data = await pdfParse(dataBuffer);
+    const text = data.text;
+    if (!text || text.trim().length === 0) {
+      throw new Error("No text extracted from PDF. It may be a scanned document.");
+    }
+    const html = textToHtml(text);
+    return { text, html };
+  } catch {
+    throw new Error("PDF parsing is not available on this server. Please convert to .docx or .txt.");
   }
-  const html = textToHtml(text);
-  return { text, html };
 }
 
 /**
@@ -210,12 +220,12 @@ export async function POST(req: NextRequest) {
         html = textToHtml(text);
       } else if (ext === ".doc") {
         return NextResponse.json(
-          { error: "Legacy .doc format is not supported. Please save as .docx or .pdf." },
+          { error: "Legacy .doc format is not supported. Please save as .docx or .txt." },
           { status: 415 }
         );
       } else {
         return NextResponse.json(
-          { error: `Unsupported file type (.${ext}). Supported: .docx, .pdf, .txt` },
+          { error: `Unsupported file type (.${ext}). Supported: .docx, .txt` },
           { status: 415 }
         );
       }
