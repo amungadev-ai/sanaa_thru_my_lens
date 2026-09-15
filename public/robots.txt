@@ -6,4 +6,4 @@ Disallow: /api
 Disallow: /comment-login
 Disallow: /comment-register
 
-Sitemap: https://www.saaathrumylens.co.ke/sitemap.xml
+Sitemap: https://www.sanaathrumylens.co.ke/sitemap.xml

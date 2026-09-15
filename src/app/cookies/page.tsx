@@ -21,7 +21,7 @@ export default function CookiesPage() {
           <div className="article-prose mt-8">
             <p>
               This Cookie Policy explains how Sanaa Thrumylens uses cookies and similar technologies
-              on <strong>www.saaathrumylens.co.ke</strong>. This policy should be read alongside our{" "}
+              on <strong>www.sanaathrumylens.co.ke</strong>. This policy should be read alongside our{" "}
               <a href="/privacy">Privacy Policy</a>.
             </p>
 

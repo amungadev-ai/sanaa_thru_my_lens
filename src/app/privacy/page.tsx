@@ -21,7 +21,7 @@ export default function PrivacyPage() {
           <div className="article-prose mt-8">
             <p>
               Sanaa Thrumylens (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) operates
-              the website <strong>www.saaathrumylens.co.ke</strong> (the &ldquo;Site&rdquo;). This
+              the website <strong>www.sanaathrumylens.co.ke</strong> (the &ldquo;Site&rdquo;). This
               Privacy Policy explains how we collect, use, and protect your personal information when
               you visit our Site, subscribe to our newsletter, or engage with our content.
             </p>

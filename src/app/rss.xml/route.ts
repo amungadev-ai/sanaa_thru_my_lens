@@ -14,7 +14,7 @@ function escapeXml(text: string): string {
 }
 
 export async function GET() {
-  const baseUrl = "https://www.saaathrumylens.co.ke";
+  const baseUrl = "https://www.sanaathrumylens.co.ke";
 
   const posts = await db.post.findMany({
     where: { status: "PUBLISHED" },

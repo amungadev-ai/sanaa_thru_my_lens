@@ -21,7 +21,7 @@ export default function TermsPage() {
           <div className="article-prose mt-8">
             <p>
               These Terms of Service (&ldquo;Terms&rdquo;) govern your use of the Sanaa Thrumylens
-              website at <strong>www.saaathrumylens.co.ke</strong> (the &ldquo;Site&rdquo;). By
+              website at <strong>www.sanaathrumylens.co.ke</strong> (the &ldquo;Site&rdquo;). By
               accessing or using the Site, you agree to be bound by these Terms.
             </p>
 

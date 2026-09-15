@@ -17,7 +17,7 @@ Options -Indexes
 # --- Default CORS for images served from /images/ --------------------------
 <IfModule mod_headers.c>
     # Allow images to be loaded by the blog
-    SetEnvIf Origin "^(https://(www\.)?saaathrumylens\.co\.ke)$" CORS_ORIGIN=$0
+    SetEnvIf Origin "^(https://(www\.)?sanaathrumylens\.co\.ke)$" CORS_ORIGIN=$0
     Header always set Access-Control-Allow-Origin "%{CORS_ORIGIN}e" env=CORS_ORIGIN
     Header always set Vary "Origin"
 </IfModule>

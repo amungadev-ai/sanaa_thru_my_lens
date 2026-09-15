@@ -70,7 +70,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
  * Included in every email for legal compliance.
  */
 export function emailFooter(unsubscribeEmail: string): string {
-  const baseUrl = "https://www.saaathrumylens.co.ke";
+  const baseUrl = "https://www.sanaathrumylens.co.ke";
   return `
     <tr>
       <td style="padding: 32px 40px; background-color: #2A1D14; border-radius: 0 0 8px 8px;">

@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     "creative economy Kenya",
   ],
   authors: [{ name: "Sanaa Thrumylens" }],
-  metadataBase: new URL("https://www.saaathrumylens.co.ke"),
+  metadataBase: new URL("https://www.sanaathrumylens.co.ke"),
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     title: "Sanaa Thrumylens — Art Through My Lens",
     description:
       "A Kenyan creative-arts blog covering music, literature, culture and the people shaping East Africa's creative economy.",
-    url: "https://www.saaathrumylens.co.ke",
+    url: "https://www.sanaathrumylens.co.ke",
     siteName: "Sanaa Thrumylens",
     type: "website",
     locale: "en_KE",

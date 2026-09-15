@@ -92,7 +92,7 @@ export function SiteFooter() {
           </div>
           <p>
             Made with care in Nairobi ·{" "}
-            <a href="https://www.saaathrumylens.co.ke" className="hover:text-primary">www.saaathrumylens.co.ke</a>
+            <a href="https://www.sanaathrumylens.co.ke" className="hover:text-primary">www.sanaathrumylens.co.ke</a>
           </p>
         </div>
       </div>

@@ -22,8 +22,8 @@ return [
 
     // Domains allowed to upload via CORS (your blog frontend)
     'allowed_origins' => [
-        'https://www.saaathrumylens.co.ke',
-        'https://saaathrumylens.co.ke',
+        'https://www.sanaathrumylens.co.ke',
+        'https://sanaathrumylens.co.ke',
         // Add localhost during development if needed:
         // 'http://localhost:3000',
     ],

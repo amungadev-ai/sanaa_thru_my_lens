@@ -60,7 +60,7 @@ export function editorInviteEmail(
   editorName: string | null,
   inviteToken: string
 ): { subject: string; html: string; text: string } {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.saaathrumylens.co.ke";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.sanaathrumylens.co.ke";
   const inviteUrl = `${baseUrl}/editor/invite/${inviteToken}`;
   const name = editorName ?? "there";
 
@@ -125,7 +125,7 @@ export function newArticleEmail(
   subscriberEmail: string,
   post: { title: string; slug: string; excerpt: string; coverImage: string | null; category: string | null; author: string }
 ): { subject: string; html: string; text: string } {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.saaathrumylens.co.ke";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.sanaathrumylens.co.ke";
   const articleUrl = `${baseUrl}/post/${post.slug}`;
 
   const coverHtml = post.coverImage

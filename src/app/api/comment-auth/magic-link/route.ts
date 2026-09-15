@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     const { token, isExisting } = await createMagicLink(email);
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.saaathrumylens.co.ke";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.sanaathrumylens.co.ke";
     const link = `${baseUrl}/comment-login/verify?token=${token}`;
 
     const html = `

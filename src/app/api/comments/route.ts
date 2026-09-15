@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
       sendEmail({
         to: adminEmail,
         subject: `New comment awaiting moderation on "${post.title}"`,
-        html: `<p>A new comment on "${post.title}" is awaiting moderation.</p><p><strong>${authorName}</strong> wrote:</p><blockquote>${content}</blockquote><p><a href="https://www.saaathrumylens.co.ke/admin/comments">Review in admin →</a></p>`,
+        html: `<p>A new comment on "${post.title}" is awaiting moderation.</p><p><strong>${authorName}</strong> wrote:</p><blockquote>${content}</blockquote><p><a href="https://www.sanaathrumylens.co.ke/admin/comments">Review in admin →</a></p>`,
         text: `New comment awaiting moderation on "${post.title}" by ${authorName}: ${content}`,
       }).catch((e) => console.error("Moderation email failed:", e));
     }

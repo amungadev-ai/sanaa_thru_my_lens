@@ -31,8 +31,8 @@ define('UPLOAD_DIR', rtrim($config['upload_dir'] ?? __DIR__ . '/images', '/'));
 define('PUBLIC_BASE_URL', rtrim($config['public_base_url'] ?? 'https://cdn.sanaathrumylens.co.ke', '/'));
 define('MAX_FILE_SIZE', ($config['max_file_size_mb'] ?? 10) * 1024 * 1024);
 define('ALLOWED_ORIGINS', $config['allowed_origins'] ?? [
-    'https://www.saaathrumylens.co.ke',
-    'https://saaathrumylens.co.ke',
+    'https://www.sanaathrumylens.co.ke',
+    'https://sanaathrumylens.co.ke',
 ]);
 
 // --- CORS ------------------------------------------------------------------

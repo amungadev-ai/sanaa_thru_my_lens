@@ -57,7 +57,7 @@ function wrap(content: string, unsubscribeEmail: string): string {
  * Welcome email sent immediately when a reader subscribes.
  */
 export function welcomeEmail(email: string): { subject: string; html: string; text: string } {
-  const baseUrl = "https://www.saaathrumylens.co.ke";
+  const baseUrl = "https://www.sanaathrumylens.co.ke";
 
   const content = `
     <h2 style="margin-top: 0;">Karibu, welcome to Sanaa Thrumylens! 🎉</h2>
@@ -138,7 +138,7 @@ export function resubscribedEmail(email: string): { subject: string; html: strin
       Your first dispatch will arrive this Friday. In the meantime, catch up on
       our latest stories:
     </p>
-    <a href="https://www.saaathrumylens.co.ke" class="btn">Visit the blog →</a>
+    <a href="https://www.sanaathrumylens.co.ke" class="btn">Visit the blog →</a>
   `;
 
   const text = `
@@ -146,9 +146,9 @@ Welcome back to Sanaa Thrumylens!
 
 You've been re-subscribed to The Weekly Dispatch. We're glad to have you back.
 
-Visit the blog: https://www.saaathrumylens.co.ke
+Visit the blog: https://www.sanaathrumylens.co.ke
 
-To unsubscribe: https://www.saaathrumylens.co.ke/unsubscribe?email=${encodeURIComponent(email)}
+To unsubscribe: https://www.sanaathrumylens.co.ke/unsubscribe?email=${encodeURIComponent(email)}
   `.trim();
 
   return {

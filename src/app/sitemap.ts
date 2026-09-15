@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const revalidate = 3600; // Cache for 1 hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://www.saaathrumylens.co.ke";
+  const baseUrl = "https://www.sanaathrumylens.co.ke";
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/`, lastModified: new Date(), changeFrequency: "daily", priority: 1.0 },
