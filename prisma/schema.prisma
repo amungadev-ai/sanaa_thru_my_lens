@@ -150,6 +150,8 @@ model Reader {
   passwordHash    String?  @db.VarChar(255) // optional — hybrid auth
   magicLinkToken  String?  @unique @db.VarChar(64)
   magicLinkExpiry DateTime?
+  googleId        String?  @unique @db.VarChar(255) // Google OAuth ID
+  googleAvatar    String?  @db.VarChar(500) // Google profile picture URL
   firstCommentApproved Boolean @default(false) // true after first comment is approved
   status          String   @default("ACTIVE") @db.VarChar(20) // ACTIVE | SUSPENDED
   createdAt       DateTime @default(now())
@@ -157,6 +159,7 @@ model Reader {
 
   @@index([email])
   @@index([status])
+  @@index([googleId])
 }
 
 model Event {

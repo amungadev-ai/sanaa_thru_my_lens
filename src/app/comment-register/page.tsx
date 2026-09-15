@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/blog/SiteHeader";
 import { SiteFooter } from "@/components/blog/SiteFooter";
 import { CommentAuthForm } from "../comment-login/CommentAuthForm";
+import { GoogleSignIn } from "@/components/blog/GoogleSignIn";
 
 export const metadata = { title: "Create an account to comment" };
 
@@ -16,8 +17,20 @@ export default function CommentRegisterPage() {
             <h1 className="font-serif text-2xl font-bold">Join the community</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Create an account to comment on stories, upvote, and reply.
-              You&apos;ll get a magic link to verify your email.
             </p>
+
+            {/* Google Sign-In */}
+            <div className="mt-6">
+              <GoogleSignIn showOneTap={false} />
+            </div>
+
+            {/* Divider */}
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">or use email</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
             <CommentAuthForm mode="register" />
           </div>
         </div>

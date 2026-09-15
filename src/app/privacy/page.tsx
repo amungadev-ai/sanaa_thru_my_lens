@@ -47,6 +47,16 @@ export default function PrivacyPage() {
                 email address, name, and an optionally-set password (stored as a bcrypt hash).
               </li>
               <li>
+                <strong>Google Sign-In:</strong> If you use Google to sign in, Google shares your
+                name, email address, and profile picture URL with us. We store your Google ID to
+                link your account. We do not share your data with Google beyond what is required
+                for authentication. Google&apos;s privacy policy applies to the authentication
+                process — see{" "}
+                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+                  Google&apos;s Privacy Policy
+                </a>.
+              </li>
+              <li>
                 <strong>Analytics data:</strong> We may use analytics tools to understand how visitors
                 use our Site. This includes aggregate, anonymised data such as page views, reading
                 time, and general location.

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, ThumbsUp, Reply, Edit, Trash2, LogIn, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GoogleSignIn } from "@/components/blog/GoogleSignIn";
 
 interface ReplyData {
   id: string;
@@ -249,14 +250,35 @@ export function CommentSection({ postId, commentCount }: CommentSectionProps) {
           </div>
         </form>
       ) : (
-        <div className="mt-6 flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-5">
-          <LogIn className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-          <p className="flex-1 text-sm text-muted-foreground">
-            <Link href="/comment-login" className="font-medium text-primary hover:underline">Log in</Link>
-            {" "}or{" "}
-            <Link href="/comment-register" className="font-medium text-primary hover:underline">register</Link>
-            {" "}to join the conversation.
-          </p>
+        <div className="mt-6 rounded-lg border border-border bg-secondary/30 p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <LogIn className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+            <p className="flex-1 text-sm text-muted-foreground">
+              Log in to join the conversation.
+            </p>
+          </div>
+
+          {/* Google Sign-In */}
+          <GoogleSignIn
+            onSuccess={() => {
+              setIsLoggedIn(true);
+              loadComments();
+            }}
+          />
+
+          {/* Divider */}
+          <div className="my-4 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">or use email</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          {/* Magic link links */}
+          <div className="flex items-center justify-center gap-4 text-sm">
+            <Link href="/comment-login" className="font-medium text-primary hover:underline">Log in with email</Link>
+            <span className="text-muted-foreground">·</span>
+            <Link href="/comment-register" className="font-medium text-primary hover:underline">Register</Link>
+          </div>
         </div>
       )}
 
