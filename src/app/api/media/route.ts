@@ -208,8 +208,13 @@ export async function DELETE(req: NextRequest) {
     try {
       result = JSON.parse(text);
     } catch {
+      // CDN returned non-JSON (maybe empty body or HTML).
+      // If the HTTP status is OK, treat the delete as successful.
+      if (res.ok) {
+        return NextResponse.json({ ok: true, deleted: path });
+      }
       return NextResponse.json(
-        { error: "CDN returned an unexpected response." },
+        { error: `CDN delete failed (HTTP ${res.status}).` },
         { status: 502 }
       );
     }
