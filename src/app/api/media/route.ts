@@ -15,6 +15,7 @@ const CDN_API_KEY = process.env.CDN_API_KEY ?? "";
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // Allow up to 60 seconds for large uploads
 
 export async function GET(req: NextRequest) {
   // Auth: admin OR editor
@@ -121,15 +122,20 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file");
-    if (!file || !(file instanceof File)) {
+    if (!file || !(file instanceof File) || file.size === 0) {
       return NextResponse.json(
-        { error: 'No file provided. Use field name "file".' },
+        { error: `No file provided or file is empty. Received: ${file ? typeof file : "null"}` },
         { status: 400 }
       );
     }
 
+    // Create a new FormData for the CDN upload
+    // Read the file as ArrayBuffer and create a new Blob to avoid
+    // serialization issues on Vercel serverless
+    const arrayBuffer = await file.arrayBuffer();
+    const blob = new Blob([arrayBuffer], { type: file.type });
     const cdnForm = new FormData();
-    cdnForm.append("file", file, file.name);
+    cdnForm.append("file", blob, file.name);
 
     const res = await fetch(`${CDN_URL}/upload.php`, {
       method: "POST",
