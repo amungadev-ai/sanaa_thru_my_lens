@@ -62,6 +62,12 @@ export async function loginEditor(email: string, password: string) {
     return { ok: false as const, error: "Invalid email or password." };
   }
 
+  // Track last login
+  await db.editor.update({
+    where: { id: editor.id },
+    data: { lastLoginAt: new Date() },
+  });
+
   const token = Buffer.from(`${editor.id}:${Date.now()}`).toString("base64");
   const store = await cookies();
   store.set(EDITOR_SESSION_COOKIE, token, {

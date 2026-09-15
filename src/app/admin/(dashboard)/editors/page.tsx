@@ -100,6 +100,10 @@ export default async function CmsEditorsPage() {
           status: e.status,
           postCount: e._count.posts,
           createdAt: toISOStringSafe(e.createdAt),
+          inviteToken: e.inviteToken,
+          inviteExpires: e.inviteExpires ? toISOStringSafe(e.inviteExpires) : null,
+          lastLoginAt: e.lastLoginAt ? toISOStringSafe(e.lastLoginAt) : null,
+          passwordSetAt: e.passwordSetAt ? toISOStringSafe(e.passwordSetAt) : null,
         }))} />
       </Card>
     </div>

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { db } from "@/lib/db";
-
 import { validateInviteToken, hashPassword } from "@/lib/editor-auth";
-
-
-const MIN_PASSWORD_LENGTH = 8;
+import { sendEmail } from "@/lib/email";
+import { editorWelcomeEmail } from "@/lib/editor-email-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const MIN_PASSWORD_LENGTH = 8;
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await hashPassword(password);
 
-    await db.editor.update({
+    const updated = await db.editor.update({
       where: { id: editor.id },
       data: {
         passwordHash,
@@ -49,8 +48,18 @@ export async function POST(req: NextRequest) {
         status: "ACTIVE",
         inviteToken: null,
         inviteExpires: null,
+        passwordSetAt: new Date(),
       },
     });
+
+    // Send welcome email
+    const emailContent = editorWelcomeEmail(updated.email, updated.name);
+    sendEmail({
+      to: updated.email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+      text: emailContent.text,
+    }).catch((e) => console.error("Welcome email failed:", e));
 
     return NextResponse.json({ ok: true, message: "Password set. You can now log in." });
   } catch (e) {

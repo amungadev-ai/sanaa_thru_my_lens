@@ -180,3 +180,169 @@ To unsubscribe: ${baseUrl}/unsubscribe?email=${encodeURIComponent(subscriberEmai
     text,
   };
 }
+
+/**
+ * Editor suspended — sent when admin suspends an editor's access.
+ */
+export function editorSuspendedEmail(
+  editorEmail: string,
+  editorName: string | null
+): { subject: string; html: string; text: string } {
+  const name = editorName ?? "there";
+
+  const content = `
+    <h2 style="margin-top: 0;">Your editor access has been suspended</h2>
+    <p>
+      Hi ${name},
+    </p>
+    <p>
+      Your access to the Sanaa Thrumylens editorial dashboard has been suspended
+      by an administrator. You will no longer be able to log in or publish stories.
+    </p>
+    <p>
+      Your existing stories remain published on the site. If you believe this is
+      an error, or if you'd like to discuss reinstating your access, please contact
+      us at <a href="mailto:hello@sanaathrumylens.co.ke" style="color: #A0421C;">hello@sanaathrumylens.co.ke</a>.
+    </p>
+    <hr class="divider">
+    <p style="font-size: 14px; color: #6B5642;">
+      — The Sanaa Thrumylens Editorial Team
+    </p>
+  `;
+
+  const text = `
+Your editor access has been suspended.
+
+Hi ${name},
+
+Your access to the Sanaa Thrumylens editorial dashboard has been suspended
+by an administrator. You will no longer be able to log in or publish stories.
+
+Your existing stories remain published on the site. If you believe this is
+an error, please contact hello@sanaathrumylens.co.ke.
+
+— The Sanaa Thrumylens Editorial Team
+  `.trim();
+
+  return {
+    subject: "Your Sanaa Thrumylens editor access has been suspended",
+    html: wrap(content, editorEmail),
+    text,
+  };
+}
+
+/**
+ * Editor reactivated — sent when admin restores an editor's access.
+ */
+export function editorReactivatedEmail(
+  editorEmail: string,
+  editorName: string | null
+): { subject: string; html: string; text: string } {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.sanaathrumylens.co.ke";
+  const loginUrl = `${baseUrl}/editor/login`;
+  const name = editorName ?? "there";
+
+  const content = `
+    <h2 style="margin-top: 0;">Your editor access has been restored ✅</h2>
+    <p>
+      Hi ${name},
+    </p>
+    <p>
+      Good news! Your access to the Sanaa Thrumylens editorial dashboard has been
+      restored. You can now log in and continue writing and publishing stories.
+    </p>
+    <div style="text-align: center; margin: 24px 0;">
+      <a href="${loginUrl}" class="btn">Log in to the editor dashboard →</a>
+    </div>
+    <p style="font-size: 14px; color: #6B5642;">
+      Welcome back!
+    </p>
+    <hr class="divider">
+    <p style="font-size: 14px; color: #6B5642;">
+      — The Sanaa Thrumylens Editorial Team
+    </p>
+  `;
+
+  const text = `
+Your editor access has been restored!
+
+Hi ${name},
+
+Your access to the Sanaa Thrumylens editorial dashboard has been restored.
+You can now log in and continue writing and publishing stories.
+
+Log in here: ${loginUrl}
+
+Welcome back!
+— The Sanaa Thrumylens Editorial Team
+  `.trim();
+
+  return {
+    subject: "Your Sanaa Thrumylens editor access has been restored ✅",
+    html: wrap(content, editorEmail),
+    text,
+  };
+}
+
+/**
+ * Welcome email — sent after an editor sets their password for the first time.
+ */
+export function editorWelcomeEmail(
+  editorEmail: string,
+  editorName: string | null
+): { subject: string; html: string; text: string } {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.sanaathrumylens.co.ke";
+  const loginUrl = `${baseUrl}/editor/login`;
+  const name = editorName ?? "there";
+
+  const content = `
+    <h2 style="margin-top: 0;">Welcome to the editorial team, ${name}! ✍️</h2>
+    <p>
+      Your Sanaa Thrumylens editor account is now active. You can log in and
+      start writing stories right away.
+    </p>
+    <p>
+      Here's what you can do:
+    </p>
+    <ul style="color: #2A1D14; font-size: 15px; line-height: 1.8;">
+      <li>Write and publish stories on Kenya's creative arts scene</li>
+      <li>Schedule stories using the content calendar</li>
+      <li>Upload images to the CDN for your articles</li>
+      <li>Manage your author profile and bio</li>
+    </ul>
+    <div style="text-align: center; margin: 24px 0;">
+      <a href="${loginUrl}" class="btn">Start writing →</a>
+    </div>
+    <p style="font-size: 14px; color: #6B5642;">
+      Questions? Reply to this email or contact hello@sanaathrumylens.co.ke.
+    </p>
+    <hr class="divider">
+    <p style="font-size: 14px; color: #6B5642;">
+      — The Sanaa Thrumylens Editorial Team
+    </p>
+  `;
+
+  const text = `
+Welcome to the Sanaa Thrumylens editorial team!
+
+Your editor account is now active. You can log in and start writing stories.
+
+Log in here: ${loginUrl}
+
+What you can do:
+- Write and publish stories
+- Schedule stories using the content calendar
+- Upload images to the CDN
+- Manage your author profile
+
+Questions? Contact hello@sanaathrumylens.co.ke.
+
+— The Sanaa Thrumylens Editorial Team
+  `.trim();
+
+  return {
+    subject: "Welcome to Sanaa Thrumylens! Your editor account is ready ✍️",
+    html: wrap(content, editorEmail),
+    text,
+  };
+}
