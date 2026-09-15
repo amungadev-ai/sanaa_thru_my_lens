@@ -134,6 +134,8 @@ model Editor {
   status        String    @default("PENDING") @db.VarChar(20) // PENDING | ACTIVE | SUSPENDED
   inviteToken   String?   @unique @db.VarChar(64)
   inviteExpires DateTime?
+  lastLoginAt   DateTime?
+  passwordSetAt DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
