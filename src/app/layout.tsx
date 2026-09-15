@@ -94,6 +94,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Sanaa Thrumylens" />
         <link rel="apple-touch-startup-image" href="/icons/splash.png" />
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8031704055036556"
+          crossOrigin="anonymous"
+        />
       </head>
       <body
         className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground`}
